@@ -1,6 +1,6 @@
 import {
   SalaryRow, BREAKUP_FIELDS, DEDUCTION_FIELDS, EARNING_FIELDS,
-  MoneyField, baseSalaryOf, deductionOf, netOf
+  MoneyField, baseSalaryOf, deductionOf, isNotEligible, netOf
 } from '../types'
 
 /**
@@ -39,8 +39,8 @@ export const inr = (n: number): string =>
 export type PayslipLine = {
   label: string
   amount: number
-  /** true for a Basic / HRA / Other-allowance line: it is part of Monthly Salary, not extra pay. */
-  sub?: boolean
+  /** Shown verbatim instead of the amount — "Not Eligible" for a deduction the sheet marked so. */
+  text?: string
 }
 
 const EARNING_LABELS: Partial<Record<MoneyField, string>> = {
@@ -63,8 +63,10 @@ const BREAKUP_LABELS: Partial<Record<MoneyField, string>> = {
 }
 
 export type PayslipCalc = {
-  salaryLabel: string
-  lines: PayslipLine[]
+  /** The fixed structure of the monthly salary: Basic / HRA / Other Allowance as the sheet states them. */
+  structureLines: PayslipLine[]
+  /** The month's pay — the sheet's salary figure, already days-calculated at the source. */
+  salary: number
   earningsLines: PayslipLine[]
   deductionLines: PayslipLine[]
   totalEarnings: number
@@ -80,26 +82,29 @@ export function computePayslip(row: SalaryRow, workingDays: number): PayslipCalc
   // Older sheets carry only BASIC SALARY, so that figure IS the month's pay rather than a break-up part.
   const basicOnly = !row.salary && row.basicSalary > 0
 
-  // Earnings first, each line only when it carries money, exactly as the sheet intends.
-  const earningsLines: PayslipLine[] = [{ label: basicOnly ? 'Basic Salary' : 'Monthly Salary', amount: salary }]
+  // The right-hand cash section: the month's pay exactly as the sheet states it (the sheet
+  // computes it from days where it does), then the additions, each only when it carries money.
+  const earningsLines: PayslipLine[] = [{ label: basicOnly ? 'Basic Salary' : 'Salary', amount: salary }]
   for (const f of EARNING_FIELDS) {
     if (f === 'salary') continue
     const v = value(f)
     if (v > 0) earningsLines.push({ label: EARNING_LABELS[f] as string, amount: v })
   }
 
-  // The break-up sits under the salary line and is NOT summed: basic + HRA + other == salary.
-  const breakup: PayslipLine[] = []
-  for (const f of BREAKUP_FIELDS) {
-    if (basicOnly && f === 'basicSalary') continue
-    const v = value(f)
-    if (v > 0) breakup.push({ label: BREAKUP_LABELS[f] as string, amount: v, sub: true })
-  }
+  // The left-hand static structure: what the monthly salary is made of, straight from the
+  // sheet. Informational only — it is never added to the pay on top of the salary figure.
+  const structureLines: PayslipLine[] = BREAKUP_FIELDS
+    .map((f) => ({ label: BREAKUP_LABELS[f] as string, amount: value(f) }))
+    .filter((l) => l.amount > 0)
 
   const deductionLines: PayslipLine[] = []
   for (const f of DEDUCTION_FIELDS) {
     const v = deductionOf(value(f))
     if (v > 0) deductionLines.push({ label: DEDUCTION_LABELS[f] as string, amount: v })
+    // The sheet said NOT ELIGIBLE: keep the line on the slip, but name it instead of printing ₹0.00.
+    else if (isNotEligible(row, f)) {
+      deductionLines.push({ label: DEDUCTION_LABELS[f] as string, amount: 0, text: 'Not Eligible' })
+    }
   }
 
   const totalEarnings = earningsLines.reduce((s, l) => s + l.amount, 0)
@@ -108,8 +113,8 @@ export function computePayslip(row: SalaryRow, workingDays: number): PayslipCalc
   const days = Math.max(0, (Number.isFinite(workingDays) ? workingDays : 0) - value('pendingLeave'))
 
   return {
-    salaryLabel: earningsLines[0].label,
-    lines: [...earningsLines, ...breakup],
+    structureLines,
+    salary,
     earningsLines,
     deductionLines,
     totalEarnings,

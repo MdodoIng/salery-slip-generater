@@ -52,29 +52,42 @@ export async function buildPayslipDocx({ row, period, workingDays, logoPng, sett
   const slip = computePayslip(row, workingDays)
   const { net, negative } = slip
 
-  const pairCount = Math.max(slip.lines.length, slip.deductionLines.length)
+  // Same layout as the PDF: the fixed salary structure on the left, the month's cash and the
+  // deductions on the right.
+  const structure = slip.structureLines
+  const cash = slip.earningsLines
+  const pairCount = Math.max(structure.length, cash.length)
   const moneyRows: TableRow[] = []
   for (let i = 0; i < pairCount; i++) {
-    const e = slip.lines[i] as PayslipLine | undefined
-    const d = slip.deductionLines[i] as PayslipLine | undefined
+    const s = structure[i] as PayslipLine | undefined
+    const c = cash[i] as PayslipLine | undefined
     moneyRows.push(new TableRow({
       children: [
-        amtCell(e ? (e.sub ? '   \u2514 ' + e.label : e.label) : '', false, !!e && !e.sub),
-        amtCell(e ? inr(e.amount) : '-', true, !!e && !e.sub),
-        amtCell(d ? d.label : '', false),
-        amtCell(d ? inr(d.amount) : '-', true)
+        amtCell(s ? s.label : '', false, !!s),
+        amtCell(s ? inr(s.amount) : '-', true, !!s),
+        amtCell(c ? c.label : '', false, !!c),
+        amtCell(c ? inr(c.amount) : '-', true, !!c)
       ]
     }))
   }
-
-  const totalRow = new TableRow({
+  moneyRows.push(new TableRow({
     children: [
-      amtCell('Total Earnings', false, true),
-      amtCell(inr(slip.totalEarnings), true, true),
-      amtCell('Total Deductions', false, true),
-      amtCell(inr(slip.totalDeductions), true, true)
+      amtCell(structure.length ? 'Total' : '', false, true),
+      amtCell(structure.length ? inr(slip.salary) : '-', true, true),
+      amtCell('Gross Salary', false, true),
+      amtCell(inr(slip.totalEarnings), true, true)
     ]
-  })
+  }))
+  for (const d of slip.deductionLines) {
+    moneyRows.push(new TableRow({
+      children: [amtCell('', false), amtCell('-', true), amtCell(d.label, false), amtCell(d.text ?? inr(d.amount), true)]
+    }))
+  }
+  if (slip.deductionLines.length) {
+    moneyRows.push(new TableRow({
+      children: [amtCell('', false), amtCell('', true), amtCell('Total Deductions', false, true), amtCell(inr(slip.totalDeductions), true, true)]
+    }))
+  }
 
   const summaryRows: TableRow[] = [
     labelValue('Employee Code', row.empId || '-'),
@@ -83,10 +96,10 @@ export async function buildPayslipDocx({ row, period, workingDays, logoPng, sett
     labelValue('Designation', row.designation || '-'),
     labelValue('Salary Period', periodLabel(period)),
     labelValue('Total Working Days', String(workingDays)),
-    labelValue('Paid Days', String(slip.paidDays)),
-    labelValue('Pending Leave / Leave Balance', String(row.pendingLeave)),
+    labelValue('Working Days', row.daysWorked != null ? String(row.daysWorked) : '-'),
+    labelValue('Leave Balance', String(row.pendingLeave)),
     ...slip.earningsLines.map((l) => labelValue(`${l.label} (INR)`, inr(l.amount))),
-    ...slip.deductionLines.map((l) => labelValue(`${l.label} (INR)`, inr(l.amount)))
+    ...slip.deductionLines.map((l) => labelValue(`${l.label} (INR)`, l.text ?? inr(l.amount)))
   ]
 
   const doc = new Document({
@@ -113,13 +126,13 @@ export async function buildPayslipDocx({ row, period, workingDays, logoPng, sett
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
-              new TableRow({ tableHeader: true, children: [headCell('Earnings'), headCell('Amount (INR)', true), headCell('Deductions'), headCell('Amount (INR)', true)] }),
-              ...moneyRows,
-              totalRow
+              new TableRow({ tableHeader: true, children: [headCell('Salary Details'), headCell('Amount (INR)', true),
+                headCell('Earnings & Deductions'), headCell('Amount (INR)', true)] }),
+              ...moneyRows
             ]
           }),
-          ...(slip.lines.some((l) => l.sub)
-            ? [line('Basic Salary, HRA and Other Allowance are components of the monthly salary shown above; they are not paid in addition to it.', { size: 8.5, color: GREY, space: 60 })]
+          ...(structure.length
+            ? [line('The figures under Salary Details are the components of the salary, not additional pay.', { size: 8.5, color: GREY, space: 60 })]
             : [line('', { space: 60 })]),
           line(`${negative ? 'Net Salary Recoverable' : 'Net Salary Payable'}: INR ${inr(net)}`, { bold: true, size: 12, color: NAVY, space: 2 }),
           line(`(${amountInWords(net)})`, { size: 10, color: GREY, space: settings.bankDetails ? 60 : 260 }),

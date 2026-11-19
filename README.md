@@ -38,31 +38,136 @@ Building the `.exe` from Linux instead needs Wine: `sudo apt install wine64`, th
 
 ## Salary sheet format
 
-The importer auto-matches these headers (order does not matter):
+The importer auto-matches these headers (order, case and spacing do not matter):
 
-| Column | Maps to |
+| Column heading | Maps to |
 | --- | --- |
-| EMP ID | Employee code |
+| EMP ID, EMP CODE | Employee code |
 | NAME | Employee name |
 | DESIGNATION | Designation |
 | DEPARTMENT | Department |
-| SALARY | Monthly salary |
-| OT | Overtime amount |
-| PENDING LEAVE | Leave days |
-| BANK ADVANCE | Deduction |
-| CASH ADVANCE | Deduction |
+| SALARY, MONTHLY SALARY | Monthly salary — the figure the payslip is built on |
+| BASIC SALARY, HRA, OTHER ALLOWANCE | The salary structure — printed under Salary Details on the payslip |
+| OT, OVERTIME | Extra earning |
+| COMMISSION, INCENTIVE | Extra earning |
+| SUNDAY, SUNDAY WORK | Extra earning |
+| PENDING LEAVE, LOP, ABSENT | Leave Balance (days) on the payslip header |
+| TOTAL WORKING DAYS, NO OF DAYS | Total Working Days — the month's length, per employee; falls back to the month's Working days setting |
+| WORKING DAYS | The employee's own days for the month, printed beside Total Working Days on the payslip |
+| BANK ADVANCE, CASH ADVANCE | Deduction |
+| ESI DEDUCTION, PF DEDUCTION | Deduction |
 
-`GROSS SALARY` / total columns are ignored — the app computes
-`Salary + OT − Bank advance − Cash advance`, matching the formula in `TEST.xlsx`.
+Ignored on purpose: `GROSS SALARY`, `BALANCE AMOUNT`, `SL NO`, `PUNCHING NO` — the app
+computes or already knows them. Any *other* heading it does not recognise is listed in the
+status bar after the import, so a renamed column can never lose money quietly. Text like
+`NOT ELIGIBLE` in a money cell counts as zero.
+
+```
+net = monthly salary + OT + commission + Sunday − bank advance − cash advance − ESI − PF
+```
+
+Advances always reduce pay, even if the sheet stores them as `-2000`.
+
+### What the payslip shows
+
+The table on the payslip has two sides. **Salary Details** (left) is the fixed structure of
+the monthly salary exactly as the sheet states it — Basic Salary, HRA, Other Allowance —
+closing on a **Total** row. **Earnings & Deductions** (right) is the month's real cash: the
+salary figure the sheet itself calculated (already days-based where the sheet does that),
+then OT, Commission and Sunday work on top, the **Gross Salary**, and underneath it the
+deductions and their total:
+
+```
+Salary Details                    |  Earnings & Deductions
+Basic Salary       11,000.00      |  Salary               22,000.00
+HRA                 4,400.00      |  Overtime Amount       1,000.00
+Other Allowance     6,600.00      |  Commission              200.00
+Total              22,000.00      |  Gross Salary         23,200.00
+                                  |  Bank Advance          1,500.00
+                                  |  PF Deduction          1,320.00
+                                  |  Total Deductions      2,820.00
+```
+
+The structure is never added to the pay on top of the salary figure — the note under the
+table says so on the slip itself. Employees whose Basic + HRA + Other Allowance does not
+add up to the monthly salary are flagged in the banner above the grid, since their structure
+will not reconcile, but the payslip prints what the sheet states either way. Older sheets
+carrying only `BASIC SALARY` print that as the pay line.
+
+The header box prints **Total Working Days** — taken from the sheet's `TOTAL WORKING DAYS`
+column when it has one (the grid's *Days* column shows it per row), otherwise from the
+month's *Working days* setting on the top bar. A plain `WORKING DAYS` column (the employee's
+own days, distinct from the total) imports separately and prints as **Working Days** beside
+it; when the sheet has no such column the field shows `-`. **Leave Balance** sits beside
+them; Paid Days is no longer printed.
+
+If the sheet repeats the `SALARY` heading (e.g. a monthly column beside a per-day rate), the
+column whose value matches the break-up is the one used.
+
+### Percentages in ESI / PF
+
+Either deduction may be written as a rate instead of an amount — a real `%`-formatted cell
+or typed text like `12%` both work:
+
+```
+PF  %  ×  Basic Salary      (falls back to the monthly salary if there is no Basic)
+ESI %  ×  monthly salary    (gross wages)
+```
+
+So `12%` against a Basic of 11,000 imports as ₹1,320, and `0.75%` against a salary of
+22,000 imports as ₹165. The grid and the payslip then show the resulting amount, and the
+status bar names the columns it converted. Percentages in *other* money columns are not
+converted (they take a flat amount by design) — those are called out in the status bar
+instead of being read as rupees, because `5%` there would otherwise become ₹5.
+
+### Excel error cells
+
+A broken formula arrives as an Excel error (`#VALUE!`, `#DIV/0!` …) and Excel itself shows
+it in the cell. The importer reads those cells as zero and reports them in the status bar,
+e.g. `BASIC SALARY arrived as #VALUE! in 28 rows — Excel itself is showing an error in
+those cells, so the app reads them as zero; fix the formula in the sheet`. Fixing the
+formula in the sheet and re-importing clears the report; the stored value is not
+overwritten by a blank or broken column, so a previous month's good numbers survive a
+bad file. `NOT ELIGIBLE` in a deduction column is normal — it imports as zero, and the payslip
+prints **Not Eligible** as the value for that line (the grid shows the words too, italic, and
+typing a number replaces them), so an absent deduction reads as the sheet's decision rather
+than an omission.
 
 Each month is a separate sheet: pick **Salary month** in the top bar, import that
 month's file, edit any cell in place, then download PDFs one at a time or all at once.
+**Clear all** empties the month you are viewing (other months and already-exported
+payslips are untouched); confirm first, since only a Backup can undo it.
 
 ## Payslip extras
 
 **Settings** holds the company address and an optional payment/bank line, both printed
-on the payslip. If advances exceed salary the net goes red, is labelled *Net Salary
-Recoverable*, and a banner lists the affected employees above the table.
+on the payslip. If deductions exceed earnings the net goes red, is labelled *Net Salary
+Recoverable*, and a banner lists the affected employees above the table. PDF and Word
+come from the same calculation (`lib/payslipCalc.ts`), so the two can not disagree.
+
+When an employee has nothing deducted — no advance, no ESI, no PF — the ledger simply ends
+at the Gross Salary row: no deduction lines and no Total Deductions row. Type any deduction
+in and they come back. The Net line is always printed, and with nothing deducted it simply
+equals the gross.
+
+The PDF is styled as a print ledger rather than a web page: the letterhead is the company
+logo — the logo image already carries the name, so the name text prints only when no logo
+is set, with the address beside either — closing with a double rule, employee details sit
+in a ruled box with dotted separators, the two-sided ledger (Salary Details | Earnings &
+Deductions) uses hairline rules and fixed-pitch amounts, and net pay with its
+amount-in-words share one box.
+
+## Development
+
+```bash
+bun install
+bun run typecheck   # tsc --noEmit over renderer + main/preload
+bun run build       # bundles into out/
+```
+
+Only `.ts` / `.tsx` files are source. Do not let `tsc` emit into `src/`: Vite resolves
+`.js` before `.ts`, so a compiled sibling would silently replace its source in the build
+(this happened, and the shipped app was running an old copy of the renderer).
 
 ## Installer
 

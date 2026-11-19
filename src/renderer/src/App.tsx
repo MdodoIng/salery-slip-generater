@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Db, SalaryRow, MonthSheet, MONEY_FIELDS, breakupMismatch, emptyRow, netOf, periodLabel } from './types'
+import { Db, SalaryRow, MonthSheet, MONEY_FIELDS, breakupMismatch, breakupPartial, emptyRow, netOf, periodLabel } from './types'
 import { loadDb, saveDb, findSheet, upsertSheet, defaultPeriod } from './lib/store'
 import { payslipHtml, payslipFileName } from './lib/payslipHtml'
 import { buildPayslipDocx } from './lib/payslipDocx'
@@ -115,7 +115,7 @@ export default function App(): JSX.Element {
     if (!file) return
     setBusy(true)
     try {
-      const { rows, skipped, unmapped, duplicates } = parseSalaryWorkbook(file.data)
+      const { rows, skipped, unmapped, duplicates, converted, unconvertedPercent, errorCells } = parseSalaryWorkbook(file.data)
       if (!rows.length) {
         setStatus(`No employee rows found in ${file.name}. Expected headers like EMP ID, NAME, SALARY.`)
         return
@@ -129,8 +129,11 @@ export default function App(): JSX.Element {
         if (cur) {
           // Keep an existing figure when the incoming sheet leaves that component blank,
           // for every amount column, not just the handful the importer started with.
-          const next: SalaryRow = { ...cur, ...inc }
-          for (const f of MONEY_FIELDS) next[f] = inc[f] || cur[f]
+          // NOT ELIGIBLE is different: the sheet states it outright, so it overrides,
+          // and the flag comes from this import alone so last month's words never linger.
+          const flagged = new Set(inc.notEligible ?? [])
+          const next: SalaryRow = { ...cur, ...inc, notEligible: inc.notEligible }
+          for (const f of MONEY_FIELDS) next[f] = flagged.has(f) ? inc[f] : (inc[f] || cur[f])
           merged.set(key, next)
         } else {
           added++
@@ -138,10 +141,15 @@ export default function App(): JSX.Element {
         }
       }
       writeSheet({ ...sheet, rows: [...merged.values()] }, true)
+      const flaggedRows = rows.filter((r) => r.notEligible?.length).length
       const notes = [
         skipped ? `${skipped} rows skipped (no name)` : '',
         unmapped.length ? `not recognised, so not imported: ${unmapped.join(', ')}` : '',
-        duplicates.length ? `heading used twice: ${duplicates.join(', ')} — for SALARY, the column matching Basic + HRA + Other Allowance wins` : ''
+        duplicates.length ? `heading used twice: ${duplicates.join(', ')} — for SALARY, the column matching Basic + HRA + Other Allowance wins` : '',
+        converted.length ? `${converted.join(' & ')} arrived as a percentage, converted to amounts (PF × Basic, ESI × monthly salary)` : '',
+        unconvertedPercent.length ? `${unconvertedPercent.join(', ')} was written as a percentage but this app takes a flat amount there — check those figures` : '',
+        errorCells.length ? `${errorCells.map((e) => `${e.column} arrived as ${e.kind} in ${e.rows} row${e.rows > 1 ? 's' : ''}`).join('; ')} — Excel itself is showing an error in those cells, so the app reads them as zero; fix the formula in the sheet` : '',
+        flaggedRows ? `${flaggedRows} employee${flaggedRows > 1 ? 's' : ''} carry NOT ELIGIBLE columns — the payslip prints “Not Eligible” there instead of ₹0` : ''
       ].filter(Boolean).join(' · ')
       setStatus(`Imported ${rows.length} employees from ${file.name} — ${added} new, ${rows.length - added} updated${notes ? `. ${notes}` : ''}.`)
     } catch (err) {
@@ -151,8 +159,12 @@ export default function App(): JSX.Element {
     }
   }
 
+  // A payslip uses the sheet's TOTAL WORKING DAYS when the import found one for that employee;
+  // otherwise the month setting on the top bar stands in for everybody.
+  const daysFor = (row: SalaryRow): number => row.workingDays || sheet.workingDays
+
   const htmlFor = (row: SalaryRow): string =>
-    payslipHtml({ row, period, workingDays: sheet.workingDays, logo, settings: db!.settings })
+    payslipHtml({ row, period, workingDays: daysFor(row), logo, settings: db!.settings })
 
   const downloadPdf = async (row: SalaryRow): Promise<void> => {
     const saved = await window.api.renderPdf({ fileName: payslipFileName(row, period), html: htmlFor(row) })
@@ -163,7 +175,7 @@ export default function App(): JSX.Element {
     const bytes = await buildPayslipDocx({
       row,
       period,
-      workingDays: sheet.workingDays,
+      workingDays: daysFor(row),
       logoPng: logo ? dataUrlToBytes(logo) : undefined,
       settings: db!.settings
     })
@@ -180,7 +192,7 @@ export default function App(): JSX.Element {
     setBusy(true)
     try {
       const result = await window.api.bulkExport(
-        sheet.rows.map((row) => ({ fileName: payslipFileName(row, period), html: payslipHtml({ row, period, workingDays: sheet.workingDays, logo, settings: db!.settings }) }))
+        sheet.rows.map((row) => ({ fileName: payslipFileName(row, period), html: payslipHtml({ row, period, workingDays: daysFor(row), logo, settings: db!.settings }) }))
       )
       setStatus(result ? `Exported ${result.count} payslips to ${result.folder}` : 'Export cancelled.')
     } finally {
@@ -220,7 +232,10 @@ export default function App(): JSX.Element {
   const totalNet = sheet.rows.reduce((sum, r) => sum + netOf(r), 0)
   const negatives = sheet.rows.filter((r) => netOf(r) < 0)
   const missingIds = sheet.rows.filter((r) => !r.empId.trim()).length
-  const mismatches = sheet.rows.filter((r) => breakupMismatch(r) !== null)
+  // Components that do not add up, or only some of them filled: the payslip's Salary Details
+  // section still prints them exactly as the sheet states them, so HR hears about a structure
+  // that will not reconcile rather than shipping it silently.
+  const badBreakup = sheet.rows.filter((r) => breakupMismatch(r) !== null || breakupPartial(r))
 
   return (
     <div className="app">
@@ -252,7 +267,7 @@ export default function App(): JSX.Element {
         <button className="accent" onClick={bulkPdf} disabled={busy}>{busy ? 'Working…' : 'Download all payslips (PDF)'}</button>
       </div>
 
-      {(negatives.length > 0 || missingIds > 0 || mismatches.length > 0) && (
+      {(negatives.length > 0 || missingIds > 0 || badBreakup.length > 0) && (
         <div className="warnings">
           {negatives.length > 0 && (
             <span>
@@ -261,11 +276,12 @@ export default function App(): JSX.Element {
               {negatives.length > 4 ? '…' : ''}). Carried over or corrected before exporting.
             </span>
           )}
-          {mismatches.length > 0 && (
+          {badBreakup.length > 0 && (
             <span>
-              {mismatches.length} row(s) where Basic + HRA + Other Allowance does not add up to the monthly salary (
-              {mismatches.map((r) => r.name || r.empId).slice(0, 4).join(', ')}
-              {mismatches.length > 4 ? '…' : ''}). Net follows the salary column, not the break-up.
+              {badBreakup.length} row(s) whose Basic / HRA / Other Allowance does not add up to the monthly salary (
+              {badBreakup.map((r) => r.name || r.empId).slice(0, 4).join(', ')}
+              {badBreakup.length > 4 ? '…' : ''}). The payslip still prints those figures under
+              Salary Details; check the component formulas in the sheet.
             </span>
           )}
           {missingIds > 0 && <span>{missingIds} row(s) have no employee code.</span>}
@@ -278,6 +294,7 @@ export default function App(): JSX.Element {
             boxRef={tableBox}
             rows={sheet.rows}
             selected={selected}
+            fallbackDays={sheet.workingDays}
             onSelect={setSelected}
             onChange={updateRow}
             onDelete={deleteRow}

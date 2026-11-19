@@ -87,6 +87,8 @@ table.grid input[type='number']::-webkit-outer-spin-button { -webkit-appearance:
 table.grid input[type='number'] { appearance: textfield; -moz-appearance: textfield; }
 table.grid input:hover { border-color: var(--line); }
 table.grid input:focus { outline: none; border-color: var(--navy); background: #fff; }
+/* A cell the sheet marks NOT ELIGIBLE: the words stand in for the zero until someone edits them. */
+table.grid input.ne { color: var(--muted); font-style: italic; }
 td.gross { font-weight: 700; color: var(--navy); padding-right: 8px; white-space: nowrap; }
 td.gross.negative { color: var(--maroon); }
 td.actions { display: flex; gap: 4px; padding-left: 4px; }

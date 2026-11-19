@@ -1,10 +1,11 @@
 import type { RefObject } from 'react'
-import { MoneyField, SalaryRow, netOf } from '../types'
+import { MoneyField, SalaryRow, isNotEligible, netOf } from '../types'
 
 type Props = {
   boxRef: RefObject<HTMLDivElement>
   rows: SalaryRow[]
   selected: number
+  fallbackDays: number
   onSelect: (i: number) => void
   onChange: (i: number, patch: Partial<SalaryRow>) => void
   onDelete: (i: number) => void
@@ -36,7 +37,14 @@ const MONEY: { key: MoneyField; label: string; width: string; title: string }[] 
   { key: 'pf', label: 'PF', width: '78px', title: 'PF deduction' }
 ]
 
-export default function SheetTable({ boxRef, rows, selected, onSelect, onChange, onDelete, onPdf, onDocx }: Props): JSX.Element {
+// The per-row day columns: DAYS is the sheet's TOTAL WORKING DAYS (the month's length; falls back
+// to the month setting shown as the placeholder) and W.DAYS is the employee's own WORKING DAYS.
+const DAYS: { key: 'workingDays' | 'daysWorked'; label: string; width: string; title: string }[] = [
+  { key: 'workingDays', label: 'Days', width: '64px', title: 'Total Working Days — imported from the sheet when it has the column; otherwise the month setting above is used' },
+  { key: 'daysWorked', label: 'W.Days', width: '70px', title: 'Working Days — the employee\u2019s own days from the sheet\u2019s WORKING DAYS column, printed on the payslip header' }
+]
+
+export default function SheetTable({ boxRef, rows, selected, fallbackDays, onSelect, onChange, onDelete, onPdf, onDocx }: Props): JSX.Element {
   return (
     <div className="table-wrap" ref={boxRef}>
       <table className="grid">
@@ -44,13 +52,14 @@ export default function SheetTable({ boxRef, rows, selected, onSelect, onChange,
           <tr>
             {TEXT.map((c) => <th key={c.key} style={{ width: c.width }}>{c.label}</th>)}
             {MONEY.map((c) => <th key={c.key} className="num" style={{ width: c.width }} title={c.title}>{c.label}</th>)}
+            {DAYS.map((c) => <th key={c.key} className="num" style={{ width: c.width }} title={c.title}>{c.label}</th>)}
             <th className="num" style={{ width: '104px' }} title="Monthly salary + OT + commission + Sunday work, minus advances, ESI and PF">Net</th>
             <th style={{ width: '118px' }}>Payslip</th>
           </tr>
         </thead>
         <tbody>
           {!rows.length && (
-            <tr><td colSpan={TEXT.length + MONEY.length + 2} className="no-rows">No employees for this month. Use “Import Excel / CSV” or “Add employee”.</td></tr>
+            <tr><td colSpan={TEXT.length + MONEY.length + DAYS.length + 2} className="no-rows">No employees for this month. Use “Import Excel / CSV” or “Add employee”.</td></tr>
           )}
           {rows.map((row, i) => (
             <tr key={i} className={i === selected ? 'active' : ''} onClick={() => onSelect(i)}>
@@ -59,9 +68,31 @@ export default function SheetTable({ boxRef, rows, selected, onSelect, onChange,
                   <input value={String(row[c.key] ?? '')} onChange={(e) => onChange(i, { [c.key]: e.target.value })} />
                 </td>
               ))}
-              {MONEY.map((c) => (
-                <td key={c.key} className="num">
-                  <input type="number" value={row[c.key]} onChange={(e) => onChange(i, { [c.key]: Number(e.target.value) })} />
+              {MONEY.map((c) => {
+                const flagged = isNotEligible(row, c.key)
+                return (
+                  <td key={c.key} className="num" title={flagged ? 'The sheet says NOT ELIGIBLE — counts as zero' : undefined}>
+                    {flagged ? (
+                      <input
+                        className="ne"
+                        value="Not Eligible"
+                        onChange={(e) => {
+                          // Typing a number replaces the words (and the flag); anything else keeps them.
+                          const n = Number(e.target.value)
+                          if (e.target.value.trim() !== '' && Number.isFinite(n)) {
+                            onChange(i, { [c.key]: n, notEligible: (row.notEligible ?? []).filter((f) => f !== c.key) })
+                          }
+                        }}
+                      />
+                    ) : (
+                      <input type="number" value={row[c.key]} onChange={(e) => onChange(i, { [c.key]: Number(e.target.value) })} />
+                    )}
+                  </td>
+                )
+              })}
+              {DAYS.map((c) => (
+                <td key={c.key} className="num" title={c.title}>
+                  <input type="number" min={0} placeholder={c.key === 'workingDays' ? String(fallbackDays) : ''} value={row[c.key] ?? ''} onChange={(e) => onChange(i, { [c.key]: Number(e.target.value) })} />
                 </td>
               ))}
               <td className={`num gross${netOf(row) < 0 ? ' negative' : ''}`}>₹{netOf(row).toLocaleString('en-IN')}</td>

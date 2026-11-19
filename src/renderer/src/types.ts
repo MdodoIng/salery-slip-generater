@@ -11,10 +11,18 @@ export type SalaryRow = {
   commission: number
   sundayPay: number
   pendingLeave: number
+  /** TOTAL WORKING DAYS from the sheet when it carries the column; otherwise the month's setting. */
+  workingDays?: number
+  /** The sheet's per-employee WORKING DAYS column — the days that employee worked this month;
+   *  printed beside Total Working Days in the payslip header. */
+  daysWorked?: number
   bankAdvance: number
   cashAdvance: number
   esi: number
   pf: number
+  /** Columns the sheet itself marks NOT ELIGIBLE (PF, ESI …): stored as zero but shown as the
+   *  words on the payslip, so an absent deduction reads as the sheet's decision, not an omission. */
+  notEligible?: string[]
 }
 
 export type MonthSheet = {
@@ -85,7 +93,7 @@ export const EARNING_FIELDS: MoneyField[] = ['salary', 'ot', 'commission', 'sund
 /** Components that REDUCE pay, always as a positive amount. */
 export const DEDUCTION_FIELDS: MoneyField[] = ['bankAdvance', 'cashAdvance', 'esi', 'pf']
 
-/** The non-additive break-up of `salary`, shown as sub-lines under Monthly Salary. */
+/** The non-additive break-up of `salary`, shown on the payslip's Salary Details side. */
 export const BREAKUP_FIELDS: MoneyField[] = ['basicSalary', 'hra', 'otherAllowance']
 
 export const MONEY_FIELDS: MoneyField[] = [...EARNING_FIELDS, ...DEDUCTION_FIELDS, ...BREAKUP_FIELDS, 'pendingLeave']
@@ -93,17 +101,48 @@ export const MONEY_FIELDS: MoneyField[] = [...EARNING_FIELDS, ...DEDUCTION_FIELD
 /** A deduction can never increase pay, even if the sheet carries a minus sign on it. */
 export const deductionOf = (v: number): number => (Number.isFinite(v) ? Math.abs(v) : 0)
 
+/** The sheet said NOT ELIGIBLE for this column — zero to the rupee, named on the slip. */
+export const isNotEligible = (r: SalaryRow, f: MoneyField): boolean => (r.notEligible ?? []).includes(f)
+
 /** The month's base pay. Older sheets label the same figure "BASIC SALARY" and have no SALARY column. */
 export const baseSalaryOf = (r: SalaryRow): number => r.salary || r.basicSalary || 0
 
+/** The month's net: base pay (the salary column; a sheet carrying only BASIC SALARY pays that figure)
+ *  plus the extra earnings, minus the deductions. hra / otherAllowance stay out — they are the
+ *  break-up of the salary itself, never extra pay on top of it. */
 export const netOf = (r: SalaryRow): number =>
-  EARNING_FIELDS.reduce((sum, f) => sum + (Number.isFinite(r[f]) ? r[f] : 0), 0) -
+  baseSalaryOf(r) +
+  EARNING_FIELDS.filter((f) => f !== 'salary').reduce((sum, f) => sum + (Number.isFinite(r[f]) ? r[f] : 0), 0) -
   DEDUCTION_FIELDS.reduce((sum, f) => sum + deductionOf(r[f]), 0)
+
+/** The Basic / HRA / Other-Allowance figures, but only when the sheet actually fills every one of
+ *  them. Null means there is no break-up to speak of — an older sheet, or formulas Excel never
+ *  recalculated (those cells arrive as blank, and a payslip must not read that as zero pay). */
+export const breakupParts = (r: SalaryRow): number[] | null => {
+  const parts = BREAKUP_FIELDS.map((f) => (Number.isFinite(r[f]) ? r[f] : 0))
+  return parts.every((v) => v > 0) ? parts : null
+}
+
+/**
+ * Do the components account for the whole month's pay? Only then can they stand as the earnings
+ * lines; otherwise the payslip falls back to the single salary figure the net is built on anyway.
+ */
+export const breakupReconciles = (r: SalaryRow): boolean => {
+  const parts = breakupParts(r)
+  return parts !== null && Math.abs(baseSalaryOf(r) - parts.reduce((a, b) => a + b, 0)) <= 1
+}
+
+/** Some components are filled but not all: a half-migrated sheet, or a formula Excel never ran.
+ *  The pay itself is still safe because the payslip falls back to the salary line. */
+export const breakupPartial = (r: SalaryRow): boolean => {
+  const parts = BREAKUP_FIELDS.map((f) => (Number.isFinite(r[f]) ? r[f] : 0))
+  return parts.some((v) => v > 0) && !parts.every((v) => v > 0)
+}
 
 /** basic + HRA + other allowance vs the monthly salary. Null when the sheet gives no break-up at all. */
 export const breakupMismatch = (r: SalaryRow): number | null => {
-  const parts = BREAKUP_FIELDS.map((f) => (Number.isFinite(r[f]) ? r[f] : 0))
-  if (!parts.every((v) => v > 0)) return null
+  const parts = breakupParts(r)
+  if (!parts) return null
   const diff = baseSalaryOf(r) - parts.reduce((a, b) => a + b, 0)
   return Math.abs(diff) > 1 ? diff : null
 }
