@@ -1,0 +1,1 @@
+Electron preload script that exposes a typed IPC API surface to the renderer process via contextBridge, bridging database, file, and payslip operations to the main process.

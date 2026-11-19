@@ -1,0 +1,1 @@
+Electron desktop app that generates employee payslips, wiring a React renderer through a preload bridge into an IPC-capable main process backed by local file persistence.

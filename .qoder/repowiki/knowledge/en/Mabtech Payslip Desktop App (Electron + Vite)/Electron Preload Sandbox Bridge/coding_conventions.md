@@ -1,0 +1,3 @@
+- Each renderer-facing method is a one-line wrapper around `ipcRenderer.invoke('<domain>:<action>', ...)` with no additional logic inside the preload.
+- IPC channel names follow a `<domain>:<verb>` convention (e.g. `db:read`, `file:save`, `payslip:renderPdf`) to namespace cross-process calls.
+- The public API surface is declared in both `index.ts` (for the preload build) and `index.d.ts` (ambient `Window.api` augmentation) so renderer code gets types without importing the preload bundle.

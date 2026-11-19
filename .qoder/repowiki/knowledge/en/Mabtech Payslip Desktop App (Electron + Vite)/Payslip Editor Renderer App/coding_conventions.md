@@ -1,0 +1,3 @@
+- All cross-process I/O goes through `window.api` methods rather than direct Node/Electron APIs inside components or libs.
+- State mutations flow exclusively through `App.mutate(fn)` so the ref-backed current state stays in sync with React state and debounced disk saves.
+- Data shapes (`Db`, `MonthSheet`, `SalaryRow`) are declared once in `types.ts` and imported uniformly by both UI components and rendering utilities.

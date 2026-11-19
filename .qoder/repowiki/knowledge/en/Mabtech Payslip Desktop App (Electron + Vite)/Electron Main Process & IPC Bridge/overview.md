@@ -1,0 +1,1 @@
+Electron main process entry point that creates the renderer window and exposes IPC handlers for data persistence, file I/O, PDF generation, and backup import/export.

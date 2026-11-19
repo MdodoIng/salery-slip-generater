@@ -1,0 +1,101 @@
+/* Mabtech Payslip Generator — data topology / lineage (current state).
+ * Question answered: "Where does payroll data live, who may read or rewrite it,
+ * and what happens to it on failure?"
+ * Layout: rankdir=TB (Qoder DOT viewer / Canvas preference).
+ * Conventions: cylinder = store, box = code path allowed to touch it,
+ *   dashed red = asserted/unverified or destructive, edge label = read/write/replace.
+ */
+digraph data_topology {
+
+  rankdir=TB
+  nodesep=0.32
+  ranksep=0.72
+  fontname="Helvetica"
+  labelloc=t
+  fontsize=15
+  label="Mabtech Payslip — data topology: ONE JSON file owns the entire product state\nThere is no database engine, no ORM, no migrations, no audit table, no cache, no second copy.\n"
+
+  node [fontname="Helvetica", fontsize=11, style="rounded,filled", fillcolor="#FFFFFF", color="#14395B"]
+  edge [fontname="Helvetica", fontsize=9.5, color="#14395B"]
+
+  /* ---------- the data objects ---------- */
+  subgraph cluster_objects {
+    label="DATA OBJECTS (business language)"
+    fontsize=11
+    color="#94A3B8"
+    style="rounded"
+
+    oRow    [label="SalaryRow\none employee, one month\nempId, name, designation,\ndept, salary, ot,\npendingLeave, bankAdvance,\ncashAdvance", shape=note, fillcolor="#DCE5EE"]
+    oSheet  [label="MonthSheet\none payroll run\nperiod YYYY-MM,\nworkingDays=26 default,\nrows[]", shape=note, fillcolor="#DCE5EE"]
+    oSet    [label="Settings\ncompany identity, GLOBAL\nnot per month: name, address,\nbank line, footer, signatory", shape=note, fillcolor="#DCE5EE"]
+    oDb     [label="Db  =  sheets[] + settings\nthe whole archive", shape=note, fillcolor="#B8CCDD", penwidth=2]
+    oSlip   [label="Payslip document\nHTML string, then PDF bytes,\nor DOCX bytes", shape=note, fillcolor="#F1F5F9"]
+
+    oRow -> oSheet [label="belongs to", color="#64748B"]
+    oSheet -> oDb  [label="collection", color="#64748B"]
+    oSet -> oDb    [label="singleton", color="#64748B"]
+    oRow -> oSlip  [label="projected into,\nplus Settings", color="#64748B"]
+  }
+
+  /* ---------- the only persistent store ---------- */
+  store [label="database.json\nuserData/data/database.json\n\nWindows: %APPDATA%\\mabtech-payslip\\data\\\nLinux:   ~/.config/mabtech-payslip/data/\n\nwhole-file JSON, pretty-printed\nno schema version field\nno per-record IDs\nno timestamps\nno audit trail\nno soft delete\nno encryption at rest", shape=cylinder, fillcolor="#FCE9E8", color="#9E2B25", penwidth=2]
+
+  /* ---------- the only code that may touch the store ---------- */
+  subgraph cluster_writers {
+    label="PRIVILEGED CODE — Electron main process is the sole disk accessor"
+    fontsize=11
+    color="#1F4E72"
+
+    rd  [label="readData()\nJSON.parse, catch-all\n=> returns EMPTY on any error\nmain/index.ts:27-34", shape=box, fillcolor="#F4F8FC"]
+    wr  [label="writeData()\nserialize whole Db\ntmp + rename (atomic)\nmain/index.ts:36-41", shape=box, fillcolor="#F4F8FC"]
+    bk  [label="db:exportBackup\nreadData -> copy out", shape=box, fillcolor="#F4F8FC"]
+    rs  [label="db:importBackup\nvalidate Array.isArray(sheets)\nthen OVERWRITE store\nmain/index.ts:114-125", shape=box, fillcolor="#FCE9E8", color="#9E2B25"]
+  }
+
+  /* ---------- in-memory state ---------- */
+  subgraph cluster_memory {
+    label="IN-MEMORY STATE (renderer) — volatile, no second store"
+    fontsize=11
+    color="#2F6FA8"
+
+    mem [label="App useState<Db>\n+ dbRef mirror\n(the single write path)", shape=box, fillcolor="#F4F8FC"]
+    deb [label="300 ms debounce\n+ flush on beforeunload\n+ flush on visibilitychange=hidden\nApp.tsx:38-64", shape=box, fillcolor="#FFF3D6"]
+    mem -> deb [label="every mutation"]
+    deb -> wr  [label="db:write\n(full rewrite each save)"]
+  }
+
+  rd    -> store [label="READ whole file"]
+  wr    -> store [label="WRITE whole file"]
+  store -> mem   [label="loadDb() at startup,\nvia db:read", color="#2F6FA8"]
+  mem   -> store [label="not directly:\nmust go through main", style=dotted, color="#64748B"]
+  bk    -> store [label="READ"]
+  store -> rs    [label="READ the chosen backup file\n(NOT the store)", style=dotted, color="#9E2B25"]
+  rs    -> store [label="REPLACE — destructive,\nno confirmation dialog,\nno merge, no undo", color="#9E2B25", penwidth=1.6]
+
+  /* ---------- inputs and outputs ---------- */
+  inxlsx [label="INPUT\noperator's .xlsx/.xls/.csv\n(TEST.xlsx is the reference shape)", shape=cylinder, fillcolor="#F1F5F9"]
+  tmpb64 [label="TRANSIT\nbase64 string in the IPC payload\nfull sheet held in memory as text\nmain/index.ts:127-135", shape=box, fillcolor="#FFF3D6"]
+  outs   [label="OUTPUT FILES\nPayslip_emp_name_period.pdf\n.docx  /  Salary Sheet_period.csv\nNothing links these back to the store", shape=cylinder, fillcolor="#F1F5F9"]
+
+  inxlsx -> tmpb64 [label="file:readBinary"]
+  tmpb64 -> oRow   [label="parseSalaryWorkbook\nGROSS column ignored;\nnameless rows dropped"]
+  oSlip -> outs    [label="printToPDF / Packer.toBuffer\nthen file:save or bulkExport"]
+
+  /* ---------- retention and failure, as evidenced ---------- */
+  subgraph cluster_fate {
+    label="RETENTION / FAILURE BEHAVIOR (from code, not policy)"
+    fontsize=11
+    color="#9E2B25"
+    style="rounded,dashed"
+
+    f1 [label="Delete row\nfilter() + immediate write\nIRREVERSIBLE\nApp.tsx:88-91", shape=box, style="rounded,filled", fillcolor="#FCE9E8", color="#9E2B25"]
+    f2 [label="Corrupt or hand-edit\nthe JSON badly\n=> readData catch-all\n=> app shows an EMPTY month\n(no error surfaced)", shape=box, style="rounded,filled", fillcolor="#FCE9E8", color="#9E2B25"]
+    f3 [label="Uninstall the app\nREADME.md:14 states data\nis removed. No export-on-\nuninstall path exists.", shape=box, style="rounded,filled", fillcolor="#FCE9E8", color="#9E2B25"]
+    f4 [label="Retention policy\nUNKNOWN\nNothing in the code ages out,\narchives, or purges a month.", shape=box, style="rounded,filled,dashed", fillcolor="#FFFFFF", color="#9E2B25", fontcolor="#9E2B25"]
+  }
+
+  oRow -> f1 [label="row deletion"]
+  store -> f2
+  store -> f3
+  store -> f4 [style=dotted, color="#9E2B25"]
+}

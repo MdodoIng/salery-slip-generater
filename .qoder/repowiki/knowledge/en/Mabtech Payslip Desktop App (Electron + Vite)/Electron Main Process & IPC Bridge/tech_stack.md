@@ -1,0 +1,1 @@
+Electron main process written in TypeScript (compiled to ESM JS), using `@electron-toolkit/utils` for app identity and dev detection; PDFs are produced by Chromium's `webContents.printToPDF` on an offscreen BrowserWindow.

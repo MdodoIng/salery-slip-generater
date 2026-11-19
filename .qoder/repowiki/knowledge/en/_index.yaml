@@ -1,0 +1,87 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: en-US
+branch: Q0DeR-MaG1C-BrAnCh-Fo2-NoN-GiT-Or-No-C0MmIt
+nodes_managed: true
+exported_at: "2026-11-19T05:25:25Z"
+modules:
+    "":
+        dir_name: Mabtech Payslip Desktop App (Electron + Vite)
+        title: Mabtech Payslip Desktop App (Electron + Vite)
+        scope:
+            - README.md
+            - package.json
+            - electron.vite.config.js
+            - tsconfig.json
+            - tsconfig.node.json
+            - tsconfig.web.json
+            - .gitignore
+            - bun.lock
+            - MABTECH EQUIPMENT PVT.docx
+            - TEST.xlsx
+            - WhatsApp Image 2026-10-29 at 11.29.36 AM.jpeg
+            - WhatsApp Image 2026-10-29 at 11.29.37 AM.jpeg
+            - electron.vite.config.d.ts
+            - electron.vite.config.ts
+            - tsconfig.node.tsbuildinfo
+            - tsconfig.web.tsbuildinfo
+        source_files: []
+        children:
+            - main_process
+            - preload_script
+            - renderer_app
+        depends_on: []
+        related_to: []
+    main_process:
+        dir_name: Electron Main Process & IPC Bridge
+        title: Electron Main Process & IPC Bridge
+        scope:
+            - src/main/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: preload_script
+    preload_script:
+        dir_name: Electron Preload Sandbox Bridge
+        title: Electron Preload Sandbox Bridge
+        scope:
+            - src/preload/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: main_process
+            - path: renderer_app
+    renderer_app:
+        dir_name: Payslip Editor Renderer App
+        title: Payslip Editor Renderer App
+        scope:
+            - src/renderer/
+        source_files: []
+        children:
+            - renderer_app/payslip_logic
+            - renderer_app/ui_components
+        depends_on: []
+        related_to:
+            - path: preload_script
+    renderer_app/payslip_logic:
+        dir_name: Payslip Rendering & Data Utilities
+        title: Payslip Rendering & Data Utilities
+        scope:
+            - src/renderer/src/lib/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: renderer_app/ui_components
+    renderer_app/ui_components:
+        dir_name: Payslip Editor UI Components
+        title: Payslip Editor UI Components
+        scope:
+            - src/renderer/src/components/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: renderer_app/payslip_logic

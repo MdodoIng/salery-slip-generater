@@ -1,0 +1,1 @@
+React 18 with TypeScript, ReactDOM client entry, Electron `window.api` IPC bridge for file/PDF/backup operations.

@@ -1,0 +1,4 @@
+- IPC channel names follow a `<domain>:<action>` namespace pattern (e.g. `db:read`, `file:save`, `payslip:bulkExport`, `app:logo`).
+- File writes go through an atomic tmp-then-rename pattern (`writeFileSync(tmp)` followed by `renameSync(tmp, target)`) to avoid partial database files.
+- Dialog-based handlers return `null` when the user cancels, keeping the caller's success path uniform across open/save/pick-folder flows.
+- Filenames passed to disk I/O are sanitized through the shared `safeName` helper that strips illegal characters before being joined into paths.

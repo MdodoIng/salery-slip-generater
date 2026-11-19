@@ -1,0 +1,13 @@
+node_modules
+out
+release
+build
+*.log
+.DS_Store
+
+# TypeScript cache. Compiling into src/ used to leave index.js / types.js beside the real
+# sources, and Vite loads .js before .ts, so the app silently shipped the stale copy.
+*.tsbuildinfo
+src/**/*.js
+src/**/*.d.ts
+!src/preload/index.d.ts

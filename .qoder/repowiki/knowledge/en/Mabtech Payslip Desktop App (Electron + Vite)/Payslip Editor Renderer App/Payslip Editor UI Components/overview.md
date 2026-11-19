@@ -1,0 +1,1 @@
+React components that render the Electron renderer's payslip editor: an employee sheet table, a company settings modal, and an A4-sized HTML preview iframe.

@@ -1,0 +1,4 @@
+- Each source file ships a matching `.d.ts` alongside its `.ts` implementation, keeping type declarations co-located.
+- Public APIs are exported as named functions with explicit input/output types (`DocxInput`, `PayslipInput`, `ParsedSheet`) rather than class-based interfaces.
+- Numeric values from imported spreadsheets are normalized through a local `num()` helper that strips non-numeric characters before `parseFloat`, instead of trusting raw cell values.
+- User-facing strings are escaped via a dedicated `esc()` function replacing `&<>"` entities before interpolation into HTML templates.

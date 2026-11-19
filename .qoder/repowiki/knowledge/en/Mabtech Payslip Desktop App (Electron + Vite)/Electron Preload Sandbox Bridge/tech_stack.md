@@ -1,0 +1,1 @@
+Electron's `contextBridge` + `ipcRenderer` for sandboxed IPC; TypeScript types are split into a `.d.ts` ambient declaration consumed by the renderer and a `.ts` source kept in sync for the preload build.

@@ -1,0 +1,2 @@
+- Cross-process contracts are defined once in the preload script and consumed by the renderer via a typed wrapper, keeping the renderer free of direct `ipcRenderer` calls.
+- Each Electron process (main, preload, renderer) has its own TypeScript config (`tsconfig.node.json` / `tsconfig.web.json`) referenced from the root `tsconfig.json`.

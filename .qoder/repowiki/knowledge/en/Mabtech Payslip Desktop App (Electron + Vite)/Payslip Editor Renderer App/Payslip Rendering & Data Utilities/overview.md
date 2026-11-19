@@ -1,0 +1,1 @@
+Renderer-side utilities for loading/saving salary data, importing Excel sheets, and rendering payslips as HTML or DOCX documents.

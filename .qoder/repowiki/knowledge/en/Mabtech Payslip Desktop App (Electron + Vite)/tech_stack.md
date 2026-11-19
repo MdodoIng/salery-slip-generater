@@ -1,0 +1,1 @@
+Electron 31 + electron-vite 2 as the build/runtime orchestrator, Vite 5 + React 18 for the renderer, TypeScript across all three processes, and electron-builder for Windows NSIS packaging.

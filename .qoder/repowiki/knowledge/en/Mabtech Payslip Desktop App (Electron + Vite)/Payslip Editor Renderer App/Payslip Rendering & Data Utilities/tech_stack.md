@@ -1,0 +1,1 @@
+Built on `docx` for .docx generation and `xlsx` for Excel parsing; relies on Electron's `window.api` IPC for persistence.

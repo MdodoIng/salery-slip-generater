@@ -1,0 +1,23 @@
+schema_version: 1
+module_path: ""
+title: Mabtech Payslip Desktop App (Electron + Vite)
+scope:
+    - README.md
+    - package.json
+    - electron.vite.config.js
+    - tsconfig.json
+    - tsconfig.node.json
+    - tsconfig.web.json
+    - .gitignore
+    - bun.lock
+    - MABTECH EQUIPMENT PVT.docx
+    - TEST.xlsx
+    - WhatsApp Image 2026-10-29 at 11.29.36 AM.jpeg
+    - WhatsApp Image 2026-10-29 at 11.29.37 AM.jpeg
+    - electron.vite.config.d.ts
+    - electron.vite.config.ts
+    - tsconfig.node.tsbuildinfo
+    - tsconfig.web.tsbuildinfo
+source_files: []
+depends_on: []
+related_to: []

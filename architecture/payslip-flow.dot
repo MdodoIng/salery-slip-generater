@@ -1,0 +1,141 @@
+/* Mabtech Payslip Generator — end-to-end monthly payroll path (current state).
+ * Question answered: "How does a spreadsheet on disk become a stack of payslips in a folder?"
+ * Layout: rankdir=TB (Qoder DOT viewer / Canvas preference).
+ * Reading conventions:
+ *   solid navy edges  = confirmed, code-evidenced step order
+ *   dashed red edges  = unknown, unimplemented, or asserted-only-by-wording
+ *   box shapes        = rounded: business action | box: technical step | cylinder: store | hexagon: external artifact
+ * Every node name in a comment is its file:line evidence; full index in architecture-evidence.md.
+ */
+digraph payslip_flow {
+
+  rankdir=TB
+  nodesep=0.36
+  ranksep=0.62
+  fontname="Helvetica"
+  labelloc=t
+  fontsize=15
+  label="Mabtech Payslip — monthly payroll path: trigger = operator picks a month, outcome = one PDF per employee on disk\n(solid = code-evidenced, dashed red = unknown / not implemented)\n"
+
+  node [fontname="Helvetica", fontsize=11, style="rounded,filled", fillcolor="#FFFFFF", color="#14395B", penwidth=1.1]
+  edge [fontname="Helvetica", fontsize=9.5, color="#14395B", penwidth=1.1]
+
+  /* ==================== SWIMLANE 1 — the operator ==================== */
+  subgraph cluster_human {
+    label="BUSINESS LANE — payroll operator (human, outside the software)"
+    fontsize=11
+    color="#94A3B8"
+    style="rounded,dashed"
+
+    start   [label="START\nOperator opens the app\nfor a pay month", shape=ellipse, fillcolor="#E8EEF4"]
+    pickm   [label="Pick Salary month\n(UI: month input, YYYY-MM)", fillcolor="#E8EEF4"]
+    import  [label="Import Excel / CSV\n(UI: primary toolbar button)", fillcolor="#E8EEF4"]
+    fix     [label="Fix the numbers by hand\n(UI: editable grid cells)", fillcolor="#E8EEF4"]
+    review  [label="Look at the live payslip\n(UI: scaled preview pane)", fillcolor="#E8EEF4"]
+    issue   [label="Choose how to issue it\n(UI: PDF / DOC / Download all)", fillcolor="#E8EEF4"]
+    hand    [label="HAND OFF\nOperator physically gives the\npayslip to the employee", fillcolor="#E8EEF4", shape=hexagon]
+  }
+
+  /* ==================== SWIMLANE 2 — renderer (domain + documents) ==================== */
+  subgraph cluster_renderer {
+    label="SYSTEM LANE — Electron renderer (React): month state, domain rules, document templates"
+    fontsize=11
+    color="#2F6FA8"
+
+    ensure   [label="Month is guaranteed to exist\nApp.ensurePeriod -> upsertSheet\nworkingDays defaults to 26", shape=box, fillcolor="#F4F8FC"]
+    parse    [label="Header alias matching\nimportSheet.parseSalaryWorkbook\nGROSS/total/net columns IGNORED\nrows without a name are skipped", shape=box, fillcolor="#F4F8FC"]
+    merge    [label="Merge into the month\nkey = empId || name\nrule: incoming non-zero wins\n=> re-import CANNOT zero a value", shape=box, fillcolor="#FFF3D6"]
+    grid     [label="Gross column recomputes\ngrossOf(r) per row\nSheetTable.tsx:58", shape=box, fillcolor="#F4F8FC"]
+    rule     [label="THE BUSINESS RULE\ngross = salary + ot\n        - bankAdv - cashAdv\ntypes.ts:52-53", shape=box, fillcolor="#DCE5EE", penwidth=2]
+    total    [label="Month payroll total\nApp.tsx:204", shape=box, fillcolor="#F4F8FC"]
+    negchk   [label="Any net < 0 ?\nApp.tsx:205", shape=diamond, fillcolor="#FCE9E8", color="#9E2B25"]
+    banner   [label="Warning banner\n\"advances above salary…\nCarried over or corrected\nbefore exporting\"\nApp.tsx:237-248", shape=box, fillcolor="#FCE9E8", color="#9E2B25"]
+    html     [label="Build payslip HTML #1\npayslipHtml.ts\nzero-value lines are dropped\nlabel: Net Salary Payable", shape=box, fillcolor="#F4F8FC"]
+    docx     [label="Build payslip DOCX #2\npayslipDocx.ts\nINDEPENDENT template\nzero lines are kept\nlabel: Total Salary Payable", shape=box, fillcolor="#F4F8FC"]
+    words    [label="Amount in words\nCrore / Lakh / Thousand\nen-IN rupees\npayslipHtml.ts:12-25", shape=box, fillcolor="#F4F8FC"]
+  }
+
+  /* ==================== SWIMLANE 3 — main process (privileged) ==================== */
+  subgraph cluster_main {
+    label="SYSTEM LANE — Electron main process: the only code allowed to touch disk"
+    fontsize=11
+    color="#1F4E72"
+
+    autosave [label="Debounced autosave (300 ms)\none mutate() write path\nflush on unload / tab hidden\nApp.tsx:38-64", shape=box, fillcolor="#F4F8FC"]
+    persist  [label="writeData: whole-database rewrite\ntmp file + rename (atomic)\nmain/index.ts:36-41", shape=box, fillcolor="#F4F8FC"]
+    readb    [label="file:readBinary\nnative open dialog -> base64", shape=box, fillcolor="#F4F8FC"]
+    render   [label="payslip:renderPdf\noffscreen window -> printToPDF", shape=box, fillcolor="#F4F8FC"]
+    bulk     [label="payslip:bulkExport\nfor-loop, awaits EACH PDF\nthen opens the folder", shape=box, fillcolor="#F4F8FC"]
+    savef    [label="file:save\nnative save dialog -> bytes", shape=box, fillcolor="#F4F8FC"]
+  }
+
+  /* ==================== External artifacts ==================== */
+  subgraph cluster_files {
+    label="OUTSIDE THE BOUNDARY — files on the operator's PC"
+    fontsize=11
+    color="#9E2B25"
+    style="rounded,dashed"
+
+    xlsx    [label="Monthly register\n.xlsx / .xls / .csv\n(e.g. TEST.xlsx)", shape=cylinder, fillcolor="#F1F5F9"]
+    db      [label="database.json\n%APPDATA%/mabtech-payslip/\n  data/database.json\nplain-text salaries,\nno schema version", shape=cylinder, fillcolor="#FCE9E8"]
+    pdfs    [label="Payslip_<empId>_<name>_<period>.pdf\none per employee", shape=cylinder, fillcolor="#F1F5F9"]
+    docs    [label="Payslip_..._period.docx", shape=cylinder, fillcolor="#F1F5F9"]
+    csvout  [label="Salary Sheet <period>.csv", shape=cylinder, fillcolor="#F1F5F9"]
+    bak     [label="Backup JSON\n(dated filename)", shape=cylinder, fillcolor="#F1F5F9"]
+  }
+
+  /* ==================== confirmed main path ==================== */
+  start  -> pickm
+  pickm  -> ensure   [label="calls"]
+  ensure -> autosave [label="persists the new month"]
+
+  import -> readb    [label="invoke file:readBinary"]
+  readb  -> xlsx     [label="reads"]
+  xlsx   -> parse    [label="base64 workbook"]
+  parse  -> merge    [label="SalaryRow[] + skipped count"]
+  merge  -> autosave [label="immediate write"]
+  autosave -> persist
+  persist -> db      [label="writes whole file"]
+
+  fix    -> grid
+  grid   -> rule     [label="recomputes"]
+  rule   -> total
+  total  -> negchk
+  negchk -> banner   [label="yes", color="#9E2B25"]
+  negchk -> html     [label="no"]
+  rule   -> html     [label="net + earnings/deductions"]
+  rule   -> docx     [label="same rule, own layout"]
+  rule   -> words    [label="amount in words"]
+  words  -> html
+  words  -> docx
+  fix    -> merge    [label="manual edits also autosave", style=dotted]
+  banner -> fix      [label="operator must correct\nbefore exporting", style=dotted]
+
+  review -> html     [label="srcDoc of the SAME string", color="#2F6FA8"]
+  issue  -> render   [label="PDF for one row"]
+  issue  -> savef    [label="DOCX for one row"]
+  issue  -> bulk     [label="Download all"]
+  render -> html     [label="takes the HTML"]
+  bulk   -> html     [label="takes HTML for every row"]
+  render -> pdfs     [label="writes"]
+  bulk   -> pdfs     [label="writes N files into a dated subfolder"]
+  savef  -> docs     [label="writes, base64 -> bytes"]
+  docx   -> savef    [label="bytes via binary.ts"]
+  grid   -> csvout   [label="Export sheet CSV", style=dotted]
+
+  db     -> bak      [label="db:exportBackup\ncopies the whole store", style=dotted]
+  bak    -> db       [label="db:importBackup\nREPLACES the store\n(only Array.isArray checked)", style=dotted, color="#9E2B25"]
+
+  pdfs   -> hand
+  docs   -> hand
+
+  /* ==================== asserted-but-not-implemented ==================== */
+  banner -> negcarry [label="wording promises this", style=dashed, color="#9E2B25", fontcolor="#9E2B25"]
+  negcarry [label="UNKNOWN / NOT IMPLEMENTED\nCarry the shortfall into\nNEXT month's register.\nNo cross-month link, no\ncarry-over field, no reader\nexists anywhere in src/.", shape=box, style="rounded,filled,dashed", color="#9E2B25", fillcolor="#FFFFFF", fontcolor="#9E2B25"]
+
+  issue -> approval [label="no such step", style=dashed, color="#9E2B25", fontcolor="#9E2B25"]
+  approval [label="UNKNOWN / NOT IMPLEMENTED\nApproval, sign-off, lock, or\n\"already issued\" state.\nExport is unconditional and\nre-runnable; nothing records\ndelivery or acknowledgement.", shape=box, style="rounded,filled,dashed", color="#9E2B25", fillcolor="#FFFFFF", fontcolor="#9E2B25"]
+
+  html -> docxnote [label="must be edited in tandem", style=dashed, color="#9E2B25", fontcolor="#9E2B25"]
+  docxnote [label="DUPLICATE TEMPLATE\nPDF and Word render the same\ndocument twice, independently.\nThey already disagree on\nzero-value lines and on the\npayable wording. No test keeps\nthem in step.", shape=box, style="rounded,filled,dashed", color="#9E2B25", fillcolor="#FFFFFF", fontcolor="#9E2B25"]
+}

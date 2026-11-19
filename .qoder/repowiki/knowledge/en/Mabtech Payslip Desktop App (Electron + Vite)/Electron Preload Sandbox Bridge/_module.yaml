@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: preload_script
+title: Electron Preload Sandbox Bridge
+scope:
+    - src/preload/
+source_files: []
+depends_on: []
+related_to:
+    - path: main_process
+    - path: renderer_app
