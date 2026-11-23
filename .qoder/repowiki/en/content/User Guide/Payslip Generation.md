@@ -62,8 +62,8 @@ Docx --> Calc
 **Diagram sources**
 - [App.tsx:1-303](file://src/renderer/src/App.tsx#L1-L303)
 - [types.ts:1-117](file://src/renderer/src/types.ts#L1-L117)
-- [payslipCalc.ts:1-122](file://src/renderer/src/lib/payslipCalc.ts#L1-L122)
-- [payslipHtml.ts:1-145](file://src/renderer/src/lib/payslipHtml.ts#L1-L145)
+- [payslipCalc.ts:1-133](file://src/renderer/src/lib/payslipCalc.ts#L1-L133)
+- [payslipHtml.ts:1-173](file://src/renderer/src/lib/payslipHtml.ts#L1-L173)
 - [payslipDocx.ts:1-150](file://src/renderer/src/lib/payslipDocx.ts#L1-L150)
 - [Preview.tsx:1-29](file://src/renderer/src/components/Preview.tsx#L1-L29)
 - [SettingsModal.tsx:1-43](file://src/renderer/src/components/SettingsModal.tsx#L1-L43)
@@ -77,6 +77,7 @@ Docx --> Calc
   - Computes earnings lines, deduction lines, total earnings, total deductions, net pay, paid days, and whether net is negative.
   - Formats amounts in Indian currency and converts numbers to words (Crore/Lakh/Thousand).
   - Treats Basic/HRA/Other Allowance as sub-lines of Monthly Salary rather than extra pay.
+  - Produces fixed structure, earnings, and deduction arrays so every component always appears on the payslip.
 - HTML template engine (`payslipHtml.ts`)
   - Produces a complete HTML document with embedded CSS for A4 printing.
   - Uses computed values from `computePayslip`, so screen and paper always agree.
@@ -95,8 +96,8 @@ Docx --> Calc
   - Edits company name, address, bank details, authorized signatory, and footer text.
 
 **Section sources**
-- [payslipCalc.ts:1-122](file://src/renderer/src/lib/payslipCalc.ts#L1-L122)
-- [payslipHtml.ts:1-145](file://src/renderer/src/lib/payslipHtml.ts#L1-L145)
+- [payslipCalc.ts:1-133](file://src/renderer/src/lib/payslipCalc.ts#L1-L133)
+- [payslipHtml.ts:1-173](file://src/renderer/src/lib/payslipHtml.ts#L1-L173)
 - [payslipDocx.ts:1-150](file://src/renderer/src/lib/payslipDocx.ts#L1-L150)
 - [Preview.tsx:1-29](file://src/renderer/src/components/Preview.tsx#L1-L29)
 - [App.tsx:1-303](file://src/renderer/src/App.tsx#L1-L303)
@@ -120,7 +121,7 @@ participant Docx as "payslipDocx.ts"
 participant Preview as "Preview.tsx"
 User->>App : Select employee / month
 App->>Calc : computePayslip(row, workingDays)
-Calc-->>App : {lines, deductionLines, net, negative, ...}
+Calc-->>App : {structureLines, earningsLines, deductionLines, net, negative, ...}
 App->>Html : payslipHtml({row, period, workingDays, logo, settings})
 Html-->>App : HTML string
 App->>Preview : srcDoc = HTML string
@@ -136,8 +137,8 @@ App->>App : window.api.saveFile(docx)
 
 **Diagram sources**
 - [App.tsx:144-166](file://src/renderer/src/App.tsx#L144-L166)
-- [payslipCalc.ts:77-121](file://src/renderer/src/lib/payslipCalc.ts#L77-L121)
-- [payslipHtml.ts:17-141](file://src/renderer/src/lib/payslipHtml.ts#L17-L141)
+- [payslipCalc.ts:77-133](file://src/renderer/src/lib/payslipCalc.ts#L77-L133)
+- [payslipHtml.ts:21-173](file://src/renderer/src/lib/payslipHtml.ts#L21-L173)
 - [payslipDocx.ts:50-148](file://src/renderer/src/lib/payslipDocx.ts#L50-L148)
 - [Preview.tsx:19-26](file://src/renderer/src/components/Preview.tsx#L19-L26)
 
@@ -165,24 +166,55 @@ Days --> Result(["Return PayslipCalc object"])
 ```
 
 **Diagram sources**
-- [payslipCalc.ts:77-121](file://src/renderer/src/lib/payslipCalc.ts#L77-L121)
+- [payslipCalc.ts:77-133](file://src/renderer/src/lib/payslipCalc.ts#L77-L133)
 
 Key behaviors:
 - Additive fields are defined explicitly; non-additive break-up fields are never double-counted.
 - Negative net pay is flagged and labeled “Net Salary Recoverable.”
 - Amounts are formatted consistently across HTML and Word outputs.
+- Every structure line (Basic Salary, HRA, Other Allowance), every earnings line (Salary, Overtime Amount, Commission, Sunday Work), and every deduction line (Bank Advance, Cash Advance, ESI Deduction, PF Deduction) prints even when its value is zero.
+- For statutory deductions ESI and PF, a zero value or a NOT ELIGIBLE cell produces the text “Not Eligible” instead of ₹0.00.
+- Advance columns still show ₹0.00 when there is no advance.
 
 **Section sources**
-- [payslipCalc.ts:1-122](file://src/renderer/src/lib/payslipCalc.ts#L1-L122)
+- [payslipCalc.ts:1-133](file://src/renderer/src/lib/payslipCalc.ts#L1-L133)
 - [types.ts:66-117](file://src/renderer/src/types.ts#L66-L117)
+
+### What the Payslip Shows
+The HTML template displays a fixed two-column table so the layout does not change based on which fields happen to be non-zero:
+
+| Salary Details | Amount (INR) | Earnings & Deductions | Amount (INR) |
+|---|---|---|---|
+| Basic Salary | ₹1,00,000.00 | Salary | ₹1,00,000.00 |
+| HRA | ₹40,000.00 | Overtime Amount | ₹0.00 |
+| Other Allowance | ₹60,000.00 | Commission | ₹0.00 |
+| Total | ₹1,00,000.00 | Sunday Work | ₹0.00 |
+| | | ESI Deduction | Not Eligible |
+| | | PF Deduction | Not Eligible |
+| | | Total Deductions | ₹0.00 |
+
+Important display rules:
+- **Structure breakdown**: Basic Salary, HRA, and Other Allowance always appear under Salary Details, even when their values are zero. They describe how the sheet defines the monthly salary; they are not added on top of the Salary figure.
+- **Earnings section**: Salary, Overtime Amount, Commission, and Sunday Work always appear. Zero-valued additions print as ₹0.00.
+- **Deductions section**: Bank Advance, Cash Advance, ESI Deduction, and PF Deduction always appear.
+- **Statutory deductions**: When ESI or PF is zero or marked NOT ELIGIBLE, the cell shows “Not Eligible” instead of ₹0.00.
+- **Advances**: Bank Advance and Cash Advance remain numeric; a missing advance prints ₹0.00.
+- **Totals**: Total under Salary Details equals the monthly salary; Gross Salary sums the earnings side; Total Deductions sums the deduction side.
+- **Net pay**: Positive net is “Net Salary Payable”; negative net is “Net Salary Recoverable,” with the amount shown in digits and words.
+
+This fixed-template behavior prevents HR-facing reports from changing shape month to month and ensures every component is visible for audit and reconciliation.
+
+**Section sources**
+- [payslipCalc.ts:77-133](file://src/renderer/src/lib/payslipCalc.ts#L77-L133)
+- [payslipHtml.ts:41-87](file://src/renderer/src/lib/payslipHtml.ts#L41-L87)
 
 ### HTML Template Engine
 The HTML template engine produces a self-contained HTML document with embedded styles suitable for A4 printing and PDF conversion. It:
-- Calls `computePayslip` to obtain earnings, deductions, totals, and net pay.
+- Calls `computePayslip` to obtain structure, earnings, deductions, totals, and net pay.
 - Escapes dynamic content to avoid injection issues.
 - Renders a header with either a company logo image or company name, plus period and optional address.
 - Displays employee metadata: code, name, department, designation, working days, paid days, pending leave, and overtime.
-- Builds a two-column table pairing earnings and deductions, including sub-lines for salary breakdown.
+- Builds a two-column table pairing the fixed salary structure with earnings and deductions.
 - Shows total earnings and total deductions.
 - Highlights negative net pay and shows the amount in words.
 - Optionally prints bank details and signature lines.
@@ -200,11 +232,11 @@ class PayslipInput {
 class PayslipLine {
 +label
 +amount
-+sub
++text
 }
 class PayslipCalc {
-+salaryLabel
-+lines
++structureLines
++salary
 +earningsLines
 +deductionLines
 +totalEarnings
@@ -223,8 +255,8 @@ payslipHtml --> PayslipInput : "consumes"
 ```
 
 **Diagram sources**
-- [payslipHtml.ts:9-15](file://src/renderer/src/lib/payslipHtml.ts#L9-L15)
-- [payslipHtml.ts:17-141](file://src/renderer/src/lib/payslipHtml.ts#L17-L141)
+- [payslipHtml.ts:19-25](file://src/renderer/src/lib/payslipHtml.ts#L19-L25)
+- [payslipHtml.ts:27-173](file://src/renderer/src/lib/payslipHtml.ts#L27-L173)
 - [payslipCalc.ts:39-75](file://src/renderer/src/lib/payslipCalc.ts#L39-L75)
 
 Branding and customization:
@@ -234,7 +266,7 @@ Branding and customization:
 - Bank details can be printed as a multi-line note.
 
 **Section sources**
-- [payslipHtml.ts:1-145](file://src/renderer/src/lib/payslipHtml.ts#L1-L145)
+- [payslipHtml.ts:1-173](file://src/renderer/src/lib/payslipHtml.ts#L1-L173)
 
 ### Preview Functionality
 The preview component renders the generated HTML in an iframe and scales it to fit the available space while preserving A4 proportions. It:
@@ -331,8 +363,8 @@ App --> Settings["SettingsModal.tsx"]
 
 **Diagram sources**
 - [types.ts:1-117](file://src/renderer/src/types.ts#L1-L117)
-- [payslipCalc.ts:1-122](file://src/renderer/src/lib/payslipCalc.ts#L1-L122)
-- [payslipHtml.ts:1-145](file://src/renderer/src/lib/payslipHtml.ts#L1-L145)
+- [payslipCalc.ts:1-133](file://src/renderer/src/lib/payslipCalc.ts#L1-L133)
+- [payslipHtml.ts:1-173](file://src/renderer/src/lib/payslipHtml.ts#L1-L173)
 - [payslipDocx.ts:1-150](file://src/renderer/src/lib/payslipDocx.ts#L1-L150)
 - [App.tsx:1-303](file://src/renderer/src/App.tsx#L1-L303)
 - [Preview.tsx:1-29](file://src/renderer/src/components/Preview.tsx#L1-L29)
@@ -352,8 +384,8 @@ External integrations:
 
 **Section sources**
 - [App.tsx:1-303](file://src/renderer/src/App.tsx#L1-L303)
-- [payslipCalc.ts:1-122](file://src/renderer/src/lib/payslipCalc.ts#L1-L122)
-- [payslipHtml.ts:1-145](file://src/renderer/src/lib/payslipHtml.ts#L1-L145)
+- [payslipCalc.ts:1-133](file://src/renderer/src/lib/payslipCalc.ts#L1-L133)
+- [payslipHtml.ts:1-173](file://src/renderer/src/lib/payslipHtml.ts#L1-L173)
 - [payslipDocx.ts:1-150](file://src/renderer/src/lib/payslipDocx.ts#L1-L150)
 
 ## Performance Considerations
@@ -382,11 +414,16 @@ Common issues and resolutions:
 - Preview not visible:
   - Select an employee row to generate HTML for preview.
   - Verify that the container has sufficient width for A4 scaling.
+- Statutory deduction showing “Not Eligible”:
+  - ESI or PF is zero or marked NOT ELIGIBLE in the source sheet.
+  - The slip intentionally prints “Not Eligible” rather than ₹0.00 for these columns.
+  - Correct the source sheet if the employee should be enrolled, or accept the statutory exemption.
 
 **Section sources**
 - [App.tsx:103-142](file://src/renderer/src/App.tsx#L103-L142)
 - [App.tsx:244-262](file://src/renderer/src/App.tsx#L244-L262)
 - [README.md:39-65](file://README.md#L39-L65)
+- [payslipCalc.ts:105-121](file://src/renderer/src/lib/payslipCalc.ts#L105-L121)
 
 ## Conclusion
 The payslip generation system separates concerns cleanly:
@@ -395,6 +432,7 @@ The payslip generation system separates concerns cleanly:
 - The preview component provides accurate A4 visualization before export.
 - The Word builder mirrors the HTML structure using the same calculations.
 - Settings allow flexible branding and footer customization.
+- Fixed-template behavior ensures every structure, earnings, and deduction line is always visible, with “Not Eligible” for statutory deductions that are zero or marked NOT ELIGIBLE.
 By following the documented flows and configuration options, users can handle complex salary structures, customize payslip appearance, and reliably export PDFs and Word documents.
 
 [No sources needed since this section summarizes without analyzing specific files]
@@ -423,5 +461,5 @@ By following the documented flows and configuration options, users can handle co
 **Section sources**
 - [SettingsModal.tsx:11-40](file://src/renderer/src/components/SettingsModal.tsx#L11-L40)
 - [payslipCalc.ts:46-63](file://src/renderer/src/lib/payslipCalc.ts#L46-L63)
-- [payslipCalc.ts:77-121](file://src/renderer/src/lib/payslipCalc.ts#L77-L121)
+- [payslipCalc.ts:77-133](file://src/renderer/src/lib/payslipCalc.ts#L77-L133)
 - [App.tsx:144-179](file://src/renderer/src/App.tsx#L144-L179)
