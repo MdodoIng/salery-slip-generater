@@ -75,15 +75,22 @@ the monthly salary exactly as the sheet states it — Basic Salary, HRA, Other A
 closing on a **Total** row. **Earnings & Deductions** (right) is the month's real cash: the
 salary figure the sheet itself calculated (already days-based where the sheet does that),
 then OT, Commission and Sunday work on top, the **Gross Salary**, and underneath it the
-deductions and their total:
+deductions and their total. **Every row always prints** — all three structure lines, the
+Salary line, OT / Commission / Sunday, and all four deductions (Bank Advance, Cash Advance,
+ESI, PF) — so no component ever disappears from the slip: a positive amount shows as money
+and a genuine zero shows as `0.00`. ESI and PF are statutory, so a zero there (or a
+`NOT ELIGIBLE` cell) prints the words **Not Eligible** instead of `0.00`:
 
 ```
 Salary Details                    |  Earnings & Deductions
 Basic Salary       11,000.00      |  Salary               22,000.00
 HRA                 4,400.00      |  Overtime Amount       1,000.00
 Other Allowance     6,600.00      |  Commission              200.00
-Total              22,000.00      |  Gross Salary         23,200.00
+Total              22,000.00      |  Sunday Work               0.00
+                                  |  Gross Salary         23,200.00
                                   |  Bank Advance          1,500.00
+                                  |  Cash Advance              0.00
+                                  |  ESI Deduction      Not Eligible
                                   |  PF Deduction          1,320.00
                                   |  Total Deductions      2,820.00
 ```

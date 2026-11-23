@@ -83,27 +83,34 @@ export function computePayslip(row: SalaryRow, workingDays: number): PayslipCalc
   const basicOnly = !row.salary && row.basicSalary > 0
 
   // The right-hand cash section: the month's pay exactly as the sheet states it (the sheet
-  // computes it from days where it does), then the additions, each only when it carries money.
+  // computes it from days where it does), then the additions. Every column prints even when it is
+  // zero, matching the deductions below, so a fixed template never lets a component vanish.
   const earningsLines: PayslipLine[] = [{ label: basicOnly ? 'Basic Salary' : 'Salary', amount: salary }]
   for (const f of EARNING_FIELDS) {
     if (f === 'salary') continue
-    const v = value(f)
-    if (v > 0) earningsLines.push({ label: EARNING_LABELS[f] as string, amount: v })
+    earningsLines.push({ label: EARNING_LABELS[f] as string, amount: value(f) })
   }
 
   // The left-hand static structure: what the monthly salary is made of, straight from the
-  // sheet. Informational only — it is never added to the pay on top of the salary figure.
-  const structureLines: PayslipLine[] = BREAKUP_FIELDS
-    .map((f) => ({ label: BREAKUP_LABELS[f] as string, amount: value(f) }))
-    .filter((l) => l.amount > 0)
+  // sheet. Informational only — it is never added to the pay on top of the salary figure. All
+  // three rows print even when a part is zero, so the breakdown is always complete.
+  const structureLines: PayslipLine[] = BREAKUP_FIELDS.map((f) => ({
+    label: BREAKUP_LABELS[f] as string,
+    amount: value(f)
+  }))
 
+  // Every deduction column prints on the slip even when it is zero — HR wants a fixed template, so
+  // a component never silently disappears. ESI and PF are statutory: a zero (or a NOT ELIGIBLE
+  // cell) means the employee is not enrolled, so the slip prints the words instead of ₹0.00. The
+  // two advance columns keep a plain ₹0.00 when there is no advance.
   const deductionLines: PayslipLine[] = []
   for (const f of DEDUCTION_FIELDS) {
-    const v = deductionOf(value(f))
-    if (v > 0) deductionLines.push({ label: DEDUCTION_LABELS[f] as string, amount: v })
-    // The sheet said NOT ELIGIBLE: keep the line on the slip, but name it instead of printing ₹0.00.
-    else if (isNotEligible(row, f)) {
+    const amount = deductionOf(value(f))
+    const statutory = f === 'esi' || f === 'pf'
+    if (isNotEligible(row, f) || (statutory && amount === 0)) {
       deductionLines.push({ label: DEDUCTION_LABELS[f] as string, amount: 0, text: 'Not Eligible' })
+    } else {
+      deductionLines.push({ label: DEDUCTION_LABELS[f] as string, amount })
     }
   }
 
