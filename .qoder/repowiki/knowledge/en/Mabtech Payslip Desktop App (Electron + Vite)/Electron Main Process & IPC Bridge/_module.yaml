@@ -7,3 +7,18 @@ source_files: []
 depends_on: []
 related_to:
     - path: preload_script
+      reason: Preload exposes IPC handlers (db/payslips, file/save, pdf/export) that main_process registers via electron.ipcMain.handle.
+kk_module_id: 1742c784-60d8-9565-0c3b-0079184b65b5
+kk_cards:
+    architecture_design:
+        id: 443bcd69-aa9a-e995-9744-5b4ab4743db2
+        title: Electron Main Process & IPC Bridge
+    coding_conventions:
+        id: 29900f8c-783b-2633-976c-1702215bcba8
+        title: Electron Main Process & IPC Bridge
+    overview:
+        id: 49e7ef10-ec76-ee4b-80e7-5549b14a90e0
+        title: Electron Main Process & IPC Bridge
+    tech_stack:
+        id: a4a21412-322f-7963-aec6-edce3b106a1a
+        title: Electron Main Process & IPC Bridge

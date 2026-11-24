@@ -27,7 +27,6 @@ export default function SettingsModal({ settings, onClose, onSave, onOpenDataFol
         {field('companyAddress', 'Address (shown top-right of payslip)', true)}
         {field('bankDetails', 'Payment / bank details line (optional)', true)}
         {field('authorisedSignatory', 'Signatory label')}
-        {field('payslipFooter', 'Disclaimer note', true)}
         <p className="hint">
           Data is stored on this PC only.
           <button className="link" onClick={onOpenDataFolder}>Open data folder</button>

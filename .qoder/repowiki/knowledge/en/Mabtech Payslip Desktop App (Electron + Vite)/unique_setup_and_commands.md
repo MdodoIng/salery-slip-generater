@@ -1,1 +1,1 @@
-`bun dev` / `bun build` / `bun preview` run through `electron-vite`; `bun dist:win` builds then packages a Windows NSIS installer via `electron-builder --win`.
+`bun dev` / `bun build` / `bun preview` run through `electron-vite`; `bun dist:win` builds then packages a Windows NSIS installer via `electron-builder --win`; `bun run typecheck` runs `tsc --noEmit` over renderer + main/preload.

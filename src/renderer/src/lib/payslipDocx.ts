@@ -151,8 +151,7 @@ export async function buildPayslipDocx({ row, period, workingDays, logoPng, sett
                 ]
               })
             ]
-          }),
-          line(settings.payslipFooter, { size: 8, color: GREY, align: AlignmentType.CENTER })
+          })
         ]
       }
     ]

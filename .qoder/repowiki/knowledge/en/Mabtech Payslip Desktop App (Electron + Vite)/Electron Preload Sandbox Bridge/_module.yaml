@@ -6,5 +6,20 @@ scope:
 source_files: []
 depends_on: []
 related_to:
-    - path: main_process
     - path: renderer_app
+      reason: Renderer entry imports and mounts the app against the typed API surface exposed by preload's contextBridge (db/file/payslip operations).
+kk_module_id: 1b1f4aa5-c974-cc9c-3fbe-e13638d05c3d
+kk_ordinal: 1
+kk_cards:
+    architecture_design:
+        id: 0467c093-37d9-6628-d497-9026003d4aad
+        title: Electron Preload Sandbox Bridge
+    coding_conventions:
+        id: 397c7923-7dd7-4bad-33ae-461c639d1bbf
+        title: Electron Preload Sandbox Bridge
+    overview:
+        id: fd3756b5-247a-2a5f-8157-876768313eee
+        title: Electron Preload Sandbox Bridge
+    tech_stack:
+        id: 4751540e-ee95-b91c-d2cb-eb9727a8a689
+        title: Electron Preload Sandbox Bridge

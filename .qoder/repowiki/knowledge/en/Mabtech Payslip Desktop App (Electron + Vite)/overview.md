@@ -1,1 +1,1 @@
-Electron desktop app that generates employee payslips, wiring a React renderer through a preload bridge into an IPC-capable main process backed by local file persistence.
+Electron desktop app that imports Excel/CSV salary sheets, renders a live payslip editor, and exports per-employee PDFs or Word docs through an IPC bridge backed by local JSON persistence.

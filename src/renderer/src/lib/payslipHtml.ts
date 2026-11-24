@@ -117,7 +117,6 @@ export function payslipHtml({ row, period, workingDays, logo, settings }: Paysli
   .sign { display: flex; justify-content: space-between; margin-top: 44px; }
   .sign div { width: 42%; text-align: center; }
   .line { border-top: 1px solid #14395B; padding-top: 6px; font-size: 10px; color: #475569; letter-spacing: .3px; }
-  footer { margin-top: 26px; border-top: 1px solid #C7D0DA; padding-top: 7px; display: flex; justify-content: space-between; font-size: 8.6px; color: #7A8694; letter-spacing: .3px; }
 </style></head>
 <body><div class="page">
   <header>
@@ -161,11 +160,6 @@ export function payslipHtml({ row, period, workingDays, logo, settings }: Paysli
     <div><div class="line">Employee Signature</div></div>
     <div><div class="line">${esc(settings.authorisedSignatory)}</div></div>
   </div>
-
-  <footer>
-    <span>${esc(settings.payslipFooter)}</span>
-    <span>Generated ${new Date().toLocaleDateString('en-GB')}</span>
-  </footer>
 </div></body></html>`
 }
 

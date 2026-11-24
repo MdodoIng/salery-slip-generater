@@ -7,3 +7,19 @@ source_files: []
 depends_on: []
 related_to:
     - path: renderer_app/ui_components
+      reason: UI components consume payslip logic utilities for loading/saving salary data, importing Excel sheets, and rendering HTML/DOCX.
+kk_module_id: 9526bc17-ff73-650c-9469-f57fc5b773f6
+kk_ordinal: 1
+kk_cards:
+    architecture_design:
+        id: de381c36-67bd-28ab-77f5-0ae89dcfe12e
+        title: Payslip Rendering & Data Utilities
+    coding_conventions:
+        id: c7d23b4b-3f5f-dac1-6ab6-f48623c29896
+        title: Payslip Rendering & Data Utilities
+    overview:
+        id: 07a12718-e555-1f3e-16c7-c22eb2032738
+        title: Payslip Rendering & Data Utilities
+    tech_stack:
+        id: dad1ef9d-9186-c744-524e-90b531c7e931
+        title: Payslip Rendering & Data Utilities

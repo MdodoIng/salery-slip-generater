@@ -5,5 +5,18 @@ scope:
     - src/renderer/src/components/
 source_files: []
 depends_on: []
-related_to:
-    - path: renderer_app/payslip_logic
+related_to: []
+kk_module_id: f49b771f-fbe1-a819-d185-5003b8d23cfe
+kk_cards:
+    architecture_design:
+        id: f7b3bfb8-bab0-ca21-d0fe-157d526572a4
+        title: Payslip Editor UI Components
+    coding_conventions:
+        id: 921e4338-2e7f-cfa2-8414-88609c5d4ca4
+        title: Payslip Editor UI Components
+    overview:
+        id: dbb81609-879a-9b6b-04a4-47a0c3234109
+        title: Payslip Editor UI Components
+    tech_stack:
+        id: 8ecc9ff7-e207-f5db-d2f6-e1e2e9a0b973
+        title: Payslip Editor UI Components

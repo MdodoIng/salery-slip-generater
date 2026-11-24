@@ -1,27 +1,12 @@
----
-kind: frontend_style
-name: CSS-Only Styling with Design Tokens and Utility Classes
-category: frontend_style
-scope:
-    - '**'
-source_files:
-    - src/renderer/src/app.css
-    - src/renderer/src/App.tsx
-    - src/renderer/src/components/SheetTable.tsx
-    - src/renderer/src/components/Preview.tsx
-    - src/renderer/src/components/SettingsModal.tsx
-    - package.json
----
-
 ## Approach
 
-The renderer UI is styled exclusively with a single global stylesheet (`src/renderer/src/app.css`) imported once from `App.tsx`. There is no CSS-in-JS library, no component-scoped CSS modules, no Tailwind, no PostCSS pipeline, and no design-token build step — just plain CSS loaded by Vite.
+The renderer UI is styled exclusively through a single global stylesheet (`src/renderer/src/app.css`) imported once from `App.tsx`. There is no CSS-in-JS library, no component-scoped CSS modules, no Tailwind, no PostCSS pipeline, and no design-token build step — plain CSS loaded by Vite via the Electron-Vite toolchain.
 
 ## Key Files
 
-- `src/renderer/src/app.css` — the only stylesheet; defines design tokens, base resets, layout, table grid, preview pane, and modal styles.
+- `src/renderer/src/app.css` — the only stylesheet; defines design tokens, base resets, layout, table grid, preview pane, modal styles, and the `.ne` (Not Eligible) cell variant.
 - `src/renderer/src/App.tsx` — imports `app.css`; composes top-level layout classes (`app`, `topbar`, `toolbar`, `split`, `pane`).
-- `src/renderer/src/components/SheetTable.tsx` — uses class names like `grid`, `num`, `gross`, `negative`, `actions`, `danger`, `no-rows`, `active`.
+- `src/renderer/src/components/SheetTable.tsx` — uses class names like `grid`, `num`, `gross`, `negative`, `actions`, `danger`, `no-rows`, `active`, `ne`.
 - `src/renderer/src/components/Preview.tsx` — uses `preview-box`, `preview-frame`; applies inline `style={{ width, height, transform }}` for page scaling.
 - `src/renderer/src/components/SettingsModal.tsx` — uses `modal-backdrop`, `modal`, `field`, `hint`, `modal-actions`, `link`, `primary`.
 
@@ -30,15 +15,17 @@ The renderer UI is styled exclusively with a single global stylesheet (`src/rend
 **Design tokens via CSS custom properties.** All colors are centralized in `:root`:
 
 ```css
---navy: #14395b;
---maroon: #9e2b25;
---ink: #1b2733;
---muted: #6b7a8c;
---line: #e2e8ef;
---bg: #f5f7fa;
+:root {
+  --navy: #14395b;
+  --maroon: #9e2b25;
+  --ink: #1b2733;
+  --muted: #6b7a8c;
+  --line: #e2e8ef;
+  --bg: #f5f7fa;
+}
 ```
 
-These variables are used consistently across buttons, borders, backgrounds, and text. No other color literals appear outside of these tokens (except a few hardcoded neutrals like `#fff`, `#f8fafc`, `#eef4fa`, `#fdf3f2`).
+These variables are used consistently across buttons, borders, backgrounds, and text. A small number of neutral literals (`#fff`, `#f8fafc`, `#eef4fa`, `#fdf3f2`, `#b5332b`, `#1d4c76`) appear directly but do not introduce new semantic colors.
 
 **Global reset + base element styling.** The stylesheet starts with `* { box-sizing: border-box }` and sets `html, body, #root` to full height with `overflow: hidden` (the Electron window manages scrolling). `body` picks up `font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif` at `14px`.
 
@@ -46,7 +33,9 @@ These variables are used consistently across buttons, borders, backgrounds, and 
 
 **Layout via Flexbox and CSS Grid.** The main editor is a two-pane split using `display: grid; grid-template-columns: minmax(620px, 1.4fr) minmax(380px, 1fr)` on `.split`, with each pane wrapped in `.pane` (white card with rounded corners). Top bar and toolbar use flexbox.
 
-**Table as the primary data surface.** The sheet editor renders an HTML `<table class="grid">` with sticky headers (`position: sticky; top: 0`) and editable cells implemented as transparent `<input>` elements inside `<td>`. Numeric columns get the `.num` class; gross totals use `.gross` and `.negative` modifiers.
+**Table as the primary data surface.** The sheet editor renders an HTML `<table class="grid">` with sticky headers (`position: sticky; top: 0`) and editable cells implemented as transparent `<input>` elements inside `<td>`. Numeric columns get the `.num` class; gross totals use `.gross` and `.negative` modifiers. Number spinners are suppressed via `-webkit-appearance: none` / `appearance: textfield` so narrow money columns retain space.
+
+**Not-Eligible cell style.** Cells whose sheet value is `NOT ELIGIBLE` receive the `.ne` class, rendering them in `var(--muted)` with `font-style: italic` so they visually stand in for zero until edited.
 
 **Modal overlay pattern.** Modals use a fixed-position backdrop (`.modal-backdrop`) with a centered card (`.modal`), field labels (`.field`), hints (`.hint`), and action buttons (`.modal-actions`).
 

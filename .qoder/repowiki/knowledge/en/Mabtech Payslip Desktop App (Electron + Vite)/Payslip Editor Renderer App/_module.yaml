@@ -5,5 +5,19 @@ scope:
     - src/renderer/
 source_files: []
 depends_on: []
-related_to:
-    - path: preload_script
+related_to: []
+kk_module_id: c9e6ff13-a4b5-df2c-e45b-28ed4269f0ca
+kk_ordinal: 2
+kk_cards:
+    architecture_design:
+        id: aa7ab2b9-83c3-db9c-2844-76db6b90593d
+        title: Payslip Editor Renderer App
+    coding_conventions:
+        id: c467eb2e-fa9e-5f76-1d1f-a4965d3c6c2a
+        title: Payslip Editor Renderer App
+    overview:
+        id: de03a0ee-f953-5ae2-81c4-3469281597a0
+        title: Payslip Editor Renderer App
+    tech_stack:
+        id: 4f972581-7bce-dc40-1e5c-b3109f833908
+        title: Payslip Editor Renderer App
