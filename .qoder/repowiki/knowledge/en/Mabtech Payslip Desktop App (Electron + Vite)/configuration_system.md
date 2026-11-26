@@ -15,7 +15,7 @@ Persistence is a hand-rolled local JSON file (`database.json`) under Electron's 
 - `src/renderer/src/components/SettingsModal.tsx` — UI for editing the `Settings` fields (`companyName`, `companyAddress`, `bankDetails`, `authorisedSignatory`, `payslipFooter`).
 - `src/renderer/src/types.ts` — Declares `Settings`, `Db`, `MonthSheet`, `SalaryRow` shapes and `DEFAULT_SETTINGS` (merged in `store.ts`). Also declares `EARNING_FIELDS`, `DEDUCTION_FIELDS`, `BREAKUP_FIELDS` arrays that drive which rows print on the payslip.
 - `README.md` — Documents the fixed-template output contract: every structure, earnings, and deduction row prints even when zero, with ESI/PF showing 'Not Eligible' instead of `0.00`.
-- `electron.vite.config.ts` — Minimal Vite/Electron-Vite wiring; no env/config overrides.
+- `electron.vite.config.ts` — Minimal Vite/Electron-Vite wiring; only registers the React plugin for the renderer; main and preload bundles inherit defaults.
 - `package.json` — Contains `electron-builder` manifest (`appId`, `productName`, `directories.output`, `files`, `win.target`, `nsis` options); this is the only place where deployment/build configuration lives.
 
 ## Architecture and conventions

@@ -1,5 +1,5 @@
 import { SalaryRow, Settings, periodLabel } from '../types'
-import { PayslipLine, amountInWords, computePayslip, inr } from './payslipCalc'
+import { PayslipLine, amountInWords, computePayslip, inr, money } from './payslipCalc'
 
 export { amountInWords, inr }
 
@@ -33,7 +33,7 @@ export function payslipHtml({ row, period, workingDays, logo, settings }: Paysli
     // A sheet-marked NOT ELIGIBLE deduction shows the words where the amount would sit.
     const amount = line.text !== undefined
       ? `<td class="amt muted">${esc(line.text)}</td>`
-      : `<td class="amt">${inr(line.amount)}</td>`
+      : `<td class="amt">${money(line.amount)}</td>`
     return `<td style="text-align:${align}">${esc(line.label)}</td>
      ${amount}`
   }
@@ -45,14 +45,17 @@ export function payslipHtml({ row, period, workingDays, logo, settings }: Paysli
   for (let i = 0; i < rowsCount; i++)
     body += `<tr>${cell(structure[i], 'left')}${cell(cash[i], 'left')}</tr>`
   body += `<tr class="total">
-      <td class="lbl">${structure.length ? 'Total' : ''}</td><td class="amt${structure.length ? '' : ' muted'}">${structure.length ? inr(slip.salary) : '-'}</td>
-      <td class="lbl">Gross Salary</td><td class="amt">${inr(totalEarnings)}</td></tr>`
-  for (const d of deductions)
+      <td class="lbl">${structure.length ? 'Total' : ''}</td><td class="amt${structure.length ? '' : ' muted'}">${structure.length ? money(slip.salary) : '-'}</td>
+      <td class="lbl">Gross Salary</td><td class="amt">${money(totalEarnings)}</td></tr>`
+  for (const d of deductions) {
     body += `<tr>${cell(undefined, 'left')}${cell(d, 'left')}</tr>`
+    for (const s of d.sub ?? [])
+      body += `<tr class="sub"><td></td><td></td><td class="subdate">${esc(s.label)}</td><td class="subamt">${money(s.amount)}</td></tr>`
+  }
   if (deductions.length)
     body += `<tr class="total">
       <td class="lbl"></td><td class="amt"></td>
-      <td class="lbl">Total Deductions</td><td class="amt">${inr(totalDeductions)}</td></tr>`
+      <td class="lbl">Total Deductions</td><td class="amt">${money(totalDeductions)}</td></tr>`
   // The logo image already carries the company name, so the name text prints only when there is
   // no logo to stand in for it — the same letterhead rule the Word template follows. The address
   // still prints beside either.
@@ -100,6 +103,9 @@ export function payslipHtml({ row, period, workingDays, logo, settings }: Paysli
   td.muted { color: #B6C0CB; }
   tr.total td { background: #F4F7FA; border-top: 1.5px solid #14395B; border-bottom: 1.5px solid #14395B; font-weight: 700; }
   .note { font-size: 8.8px; color: #5C6B7A; font-style: italic; margin-top: 7px; }
+  tr.sub td { padding: 1px 10px 5px; }
+  td.subdate { text-align: left; font-size: 8.4px; color: #7A8694; padding-left: 28px; }
+  td.subamt { text-align: right; font-family: ${MONO}; font-size: 8.4px; color: #7A8694; white-space: nowrap; }
 
   .net { border: 1.5px solid #14395B; margin-top: 14px; }
   .net-row { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 14px 8px; background: #F4F7FA; }
@@ -117,6 +123,7 @@ export function payslipHtml({ row, period, workingDays, logo, settings }: Paysli
   .sign { display: flex; justify-content: space-between; margin-top: 44px; }
   .sign div { width: 42%; text-align: center; }
   .line { border-top: 1px solid #14395B; padding-top: 6px; font-size: 10px; color: #475569; letter-spacing: .3px; }
+  footer { margin-top: 48px; border-top: 1px solid #C7D0DA; padding-top: 7px; display: flex; justify-content: space-between; font-size: 8.6px; color: #7A8694; letter-spacing: .3px; }
 </style></head>
 <body><div class="page">
   <header>
@@ -145,13 +152,13 @@ export function payslipHtml({ row, period, workingDays, logo, settings }: Paysli
   </div>
 
   <table>
-    <thead><tr><th>Salary Details</th><th class="r">Amount (INR)</th><th class="ded">Earnings &amp; Deductions</th><th class="r">Amount (INR)</th></tr></thead>
+    <thead><tr><th>Salary Details</th><th class="r">Amount</th><th class="ded">Earnings &amp; Deductions</th><th class="r">Amount</th></tr></thead>
     <tbody>${body}</tbody>
   </table>
   ${structure.length ? '<div class="note">The figures under Salary Details are the components of the salary, not additional pay.</div>' : ''}
 
   <div class="net${negative ? ' neg' : ''}">
-    <div class="net-row"><span class="k">${negative ? 'Net Salary Recoverable' : 'Net Salary Payable'}</span><span class="v">INR ${inr(net)}</span></div>
+    <div class="net-row"><span class="k">${negative ? 'Net Salary Recoverable' : 'Net Salary Payable'}</span><span class="v">${money(net)}</span></div>
     <div class="words">Amount in words: <b>${esc(amountInWords(net))}</b>${negative ? '<div class="warn">Note: deductions exceed earnings for this period — recoverable from the next salary.</div>' : ''}</div>
   </div>
   ${settings.bankDetails ? `<div class="pay"><span class="pk">Payment Details</span>${esc(settings.bankDetails).replace(/\n/g, '<br>')}</div>` : ''}
@@ -160,6 +167,10 @@ export function payslipHtml({ row, period, workingDays, logo, settings }: Paysli
     <div><div class="line">Employee Signature</div></div>
     <div><div class="line">${esc(settings.authorisedSignatory)}</div></div>
   </div>
+
+  <footer>
+    <span>${esc(settings.payslipFooter)}</span>
+  </footer>
 </div></body></html>`
 }
 

@@ -5,10 +5,10 @@
     "progress_status": "completed",
     "wiki_present_status": "COMPLETED",
     "recovery_checkpoint": "wiki_generation_completed",
-    "last_commit_id": "3fc0e1c023bb78e037153a9b81504143840b64bb",
-    "last_commit_update": "2026-11-23T13:08:51Z",
-    "gmt_create": "2026-11-23T13:08:51Z",
-    "gmt_modified": "2026-11-23T13:08:51Z",
+    "last_commit_id": "123d4e0100346d6ec6ba38378337bfecf27a8541",
+    "last_commit_update": "2026-11-25T04:49:21Z",
+    "gmt_create": "2026-11-25T04:49:21Z",
+    "gmt_modified": "2026-11-25T04:49:21Z",
     "extend_info": "{\"language\":\"en\",\"active\":true,\"branch\":\"main\"}"
   },
   "wiki_catalogs": [
@@ -20,8 +20,8 @@
       "prompt": "Create comprehensive getting started content for the Mabtech Payslip Generator desktop application. Explain the purpose of this offline Windows desktop app built with Electron and React that imports monthly salary sheets from Excel/CSV files, provides live payslip previews, and exports individual payslips as PDF or Word documents. Include installation instructions using bun, first-time setup procedures, basic workflow examples showing how to import employee data, configure company settings, and generate payslips. Document system requirements, supported platforms, and initial configuration steps. Provide clear step-by-step guidance for new users to get the application running and create their first payslip within minutes.",
       "progress_status": "completed",
       "dependent_files": "README.md,package.json",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "kk_dependent_files": [
         "README.md",
         "package.json"
@@ -35,8 +35,8 @@
       "prompt": "Create comprehensive documentation for the Electron main process architecture. Explain the main process responsibilities including application lifecycle management, window creation and configuration, IPC channel setup, file system operations, and native API access. Document the BrowserWindow initialization with security configurations, preload script integration, and development/production environment handling. Detail the data persistence layer using JSON files with atomic write operations, backup/restore functionality, and directory management. Cover the PDF generation pipeline using offscreen browser windows and the printToPDF API. Include security considerations like sandboxing, external URL handling, and file dialog restrictions.",
       "progress_status": "completed",
       "dependent_files": "src/main/index.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "0fb4f87e-f17f-4bf3-84d1-ebc45a1feea0",
       "layer_level": 1,
       "kk_dependent_files": [
@@ -51,8 +51,8 @@
       "prompt": "Create comprehensive documentation for the Data Store Module responsible for application state management and data persistence. Document the loadDb() and saveDb() functions that handle database operations through IPC communication, the findSheet() function for period-based employee sheet retrieval, and the upsertSheet() function for creating or updating monthly sheets. Explain the MonthSheet structure, period management logic, and how the store integrates with the Electron main process for file system operations. Include examples of CRUD operations, error handling patterns, and performance considerations for large datasets.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/lib/store.ts,src/renderer/src/types.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "d5368323-b426-44d8-bc55-2a8943e9dc43",
       "layer_level": 1,
       "kk_dependent_files": [
@@ -68,8 +68,8 @@
       "prompt": "Create detailed documentation for the SheetTable component, which serves as the primary employee data grid interface. Document its props interface including boxRef, rows, selected, onSelect, onChange, onDelete, onPdf, and onDocx parameters. Explain the inline editing functionality for both text fields (empId, name, designation, department) and numeric fields (salary, ot, pendingLeave, bankAdvance, cashAdvance). Detail the gross salary calculation using the grossOf utility function, row selection behavior, and action buttons for PDF/DOCX export and deletion. Include styling classes like 'grid', 'num', 'gross', 'negative', and 'active'. Provide usage examples showing how to integrate with the parent App component and handle data changes. Address accessibility considerations and responsive design patterns.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/components/SheetTable.tsx,src/renderer/src/types.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "357ea5ba-d060-41de-8aca-8261af2985aa",
       "layer_level": 1,
       "kk_dependent_files": [
@@ -85,8 +85,8 @@
       "prompt": "Create comprehensive getting started content for the Mabtech Payslip Generator application. Include installation instructions for different platforms (Windows, macOS, Linux), system requirements, and initial setup procedures. Document the first-time user experience including application launch, basic interface overview, and essential configuration steps. Provide step-by-step guidance for setting up company information, adding the first employee, and generating a sample payslip. Include troubleshooting tips for common installation issues and links to additional resources.",
       "progress_status": "completed",
       "dependent_files": "README.md,package.json,src/main/index.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "c9802a01-bf80-48f5-b130-d7ba7c4aa300",
       "layer_level": 1,
       "kk_dependent_files": [
@@ -103,8 +103,8 @@
       "prompt": "Create comprehensive documentation for the Preview component that displays payslip previews using iframe integration. Document the component's role in rendering HTML-based payslip templates within an isolated iframe environment. Explain the scaling logic for responsive preview display, iframe communication patterns, and content sanitization measures. Detail how the component handles different payslip formats, image loading, and print optimization. Include configuration options for iframe sizing, scrolling behavior, and security settings. Provide examples of integrating with the payslip generation engine and handling preview updates. Address performance considerations for large payslips and memory management strategies.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/components/Preview.tsx",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "357ea5ba-d060-41de-8aca-8261af2985aa",
       "layer_level": 1,
       "order": 1,
@@ -120,8 +120,8 @@
       "prompt": "Create detailed documentation for the React renderer process architecture. Explain the React application structure starting from App.tsx as the main orchestrator component. Document the component hierarchy including SheetTable for employee data management, Preview for payslip visualization, and SettingsModal for configuration. Detail the state management patterns, event handling between components, and integration with the store module. Cover the preload script's role as a secure bridge between renderer and main processes, exposing limited APIs to the frontend while maintaining security boundaries. Include component communication patterns, prop drilling vs context usage, and performance optimization strategies.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/App.tsx,src/preload/index.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "0fb4f87e-f17f-4bf3-84d1-ebc45a1feea0",
       "layer_level": 1,
       "order": 1,
@@ -138,8 +138,8 @@
       "prompt": "Develop detailed content for employee data management features. Explain how to add new employees through the interface, edit existing employee records, and delete employee entries. Document the employee data structure including required fields like name, department, salary components, and tax information. Include examples of data validation rules and error handling. Explain the monthly period organization system and how employee data is organized by payroll periods. Cover bulk operations for managing multiple employees efficiently.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/components/SheetTable.tsx,src/renderer/src/lib/store.ts,src/renderer/src/types.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "c9802a01-bf80-48f5-b130-d7ba7c4aa300",
       "layer_level": 1,
       "order": 1,
@@ -157,8 +157,8 @@
       "prompt": "Develop detailed documentation for the File Import System that handles Excel and CSV file processing with intelligent field mapping. Document the spreadsheet parsing algorithms, header recognition logic, and data transformation pipelines. Explain how the system maps various column formats to standardized SalaryRow structures, including validation rules and error handling for malformed data. Cover supported file formats, field mapping strategies, bulk import capabilities, and integration with the React UI for user feedback during import processes.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/lib/importSheet.ts,src/renderer/src/lib/binary.d.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "d5368323-b426-44d8-bc55-2a8943e9dc43",
       "layer_level": 1,
       "order": 1,
@@ -175,8 +175,8 @@
       "prompt": "Create comprehensive user guide content for the Mabtech Payslip Generator application. Document all user-facing features including employee data management (add, edit, delete employees), spreadsheet import procedures for Excel/CSV files with automatic header mapping, monthly payroll period organization, payslip generation workflow, export options (PDF and DOCX formats), bulk operations for multiple employees, and backup/restore functionality. Explain the interface components like the employee table, preview pane, and settings modal. Include practical examples of common workflows such as setting up company information, importing monthly salary data, editing employee records, and generating professional payslips with company branding.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/App.tsx,src/renderer/src/components/SheetTable.tsx,src/renderer/src/components/Preview.tsx,src/renderer/src/components/SettingsModal.tsx",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "order": 1,
       "kk_dependent_files": [
         "src/renderer/src/App.tsx",
@@ -193,8 +193,8 @@
       "prompt": "Create architectural documentation for the Mabtech Payslip Generator's Electron-based desktop application architecture. Describe the high-level design separating main process (system-level operations, file I/O, PDF generation) from renderer process (React UI, business logic). Document the IPC communication patterns between processes, the component hierarchy in the React frontend, and the data flow from spreadsheet import through template rendering to final document export. Explain technical decisions like using Electron for cross-platform desktop capabilities, React for responsive UI, and Vite for build optimization. Include system context diagrams showing process relationships, component interaction patterns, and integration points with native file system APIs.",
       "progress_status": "completed",
       "dependent_files": "src/main/index.ts,src/renderer/src/App.tsx,electron.vite.config.ts,src/preload/index.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "order": 2,
       "kk_dependent_files": [
         "src/main/index.ts",
@@ -211,8 +211,8 @@
       "prompt": "Create comprehensive documentation for Inter-Process Communication (IPC) patterns between Electron main and renderer processes. Document all IPC channels including database operations (db:read, db:write), file system access (file:readBinary, file:save, file:pickFolder), payslip generation (payslip:renderPdf, payslip:bulkExport), and application utilities (app:paths, app:logo). Explain the message passing protocol, parameter validation, error handling strategies, and response formats. Detail the security model using preload scripts to expose only necessary APIs, preventing direct access to Node.js modules from the renderer. Include examples of IPC calls from both sides, async/await patterns, and best practices for maintaining clean separation of concerns.",
       "progress_status": "completed",
       "dependent_files": "src/main/index.ts,src/preload/index.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "0fb4f87e-f17f-4bf3-84d1-ebc45a1feea0",
       "layer_level": 1,
       "order": 2,
@@ -229,8 +229,8 @@
       "prompt": "Create comprehensive documentation for the spreadsheet import functionality. Explain supported file formats (Excel .xlsx, CSV) and their requirements. Document the automatic header mapping system and how to customize field mappings for different spreadsheet layouts. Include examples of properly formatted input files and common import scenarios. Explain data validation during import, error handling for malformed data, and how to handle missing or invalid values. Cover advanced import options like date format handling and currency formatting.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/lib/importSheet.ts,src/renderer/src/components/SettingsModal.tsx",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "c9802a01-bf80-48f5-b130-d7ba7c4aa300",
       "layer_level": 1,
       "order": 2,
@@ -247,8 +247,8 @@
       "prompt": "Create detailed documentation for the Payslip Template Engine that generates professional HTML-based payslip templates. Document the template rendering pipeline, dynamic content insertion mechanisms, and styling systems. Explain the amount-to-words conversion functionality for Indian currency formatting, responsive design patterns, and customization options for company branding. Include examples of template variables, CSS styling approaches, and integration with the preview system for real-time payslip visualization.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/lib/payslipHtml.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "d5368323-b426-44d8-bc55-2a8943e9dc43",
       "layer_level": 1,
       "order": 2,
@@ -263,15 +263,17 @@
       "description": "settings-modal-component",
       "prompt": "Create detailed documentation for the SettingsModal component that manages company configuration and application settings. Document the form fields for company information including company name, address, logo upload, and footer customization. Explain the validation rules, data persistence mechanisms, and real-time preview capabilities. Detail the file upload handling for company logos, image processing, and storage management. Include the modal's open/close state management, form submission handling, and error handling patterns. Provide examples of integrating with the application's settings store and handling configuration changes. Address accessibility features, keyboard navigation, and screen reader support. Document the relationship between settings and payslip template rendering.",
       "progress_status": "completed",
-      "dependent_files": "src/renderer/src/components/SettingsModal.tsx,src/renderer/src/types.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "dependent_files": "src/renderer/src/components/SettingsModal.tsx,src/renderer/src/types.ts,src/renderer/src/lib/payslipDocx.ts,src/renderer/src/lib/payslipHtml.ts",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "357ea5ba-d060-41de-8aca-8261af2985aa",
       "layer_level": 1,
       "order": 2,
       "kk_dependent_files": [
         "src/renderer/src/components/SettingsModal.tsx",
-        "src/renderer/src/types.ts"
+        "src/renderer/src/types.ts",
+        "src/renderer/src/lib/payslipDocx.ts",
+        "src/renderer/src/lib/payslipHtml.ts"
       ]
     },
     {
@@ -282,8 +284,8 @@
       "prompt": "Develop comprehensive documentation for the Document Generation System that creates professional DOCX files from payslip data. Document the Word document construction process, table formatting, image embedding capabilities, and styling preservation. Explain the integration with the docx library, template variable substitution, and batch processing for multiple employees. Cover quality optimization techniques, file size considerations, and compatibility with different Word versions. Include examples of customizing document layouts and handling complex payroll calculations in generated documents.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/lib/payslipDocx.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "d5368323-b426-44d8-bc55-2a8943e9dc43",
       "layer_level": 1,
       "order": 3,
@@ -299,8 +301,8 @@
       "prompt": "Develop detailed content for the payslip generation system. Explain the HTML template engine used for creating professional payslips, including how company branding is applied and how dynamic content is inserted. Document the preview functionality that allows users to review payslips before export. Cover the calculation engine that processes salary components, deductions, and net pay calculations. Include examples of customizing payslip templates and handling complex salary structures with multiple allowances and deductions.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/lib/payslipHtml.ts,src/renderer/src/lib/payslipDocx.ts,src/renderer/src/components/Preview.tsx,src/renderer/src/lib/payslipCalc.ts,README.md",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "c9802a01-bf80-48f5-b130-d7ba7c4aa300",
       "layer_level": 1,
       "order": 3,
@@ -320,8 +322,8 @@
       "prompt": "Create detailed documentation for the build system and configuration architecture. Explain the Vite configuration for Electron applications including separate builds for main and renderer processes, development server setup, and production optimizations. Document TypeScript configuration across multiple environments (node, web, shared types) and how they integrate with the Electron build pipeline. Cover package.json scripts for development, building, and distribution. Detail asset handling, code splitting strategies, and bundle optimization techniques. Include environment-specific configurations, debugging setup, and troubleshooting common build issues. Explain the relationship between Vite, TypeScript, and Electron-builder in the complete build workflow.",
       "progress_status": "completed",
       "dependent_files": "electron.vite.config.ts,tsconfig.json,package.json",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "0fb4f87e-f17f-4bf3-84d1-ebc45a1feea0",
       "layer_level": 1,
       "order": 3,
@@ -339,8 +341,8 @@
       "prompt": "Create detailed documentation for the core modules of the Mabtech Payslip Generator. Document the data store module responsible for persistence and state management, the file import system handling Excel/CSV parsing with intelligent field mapping, the HTML template engine for professional payslip formatting, and the document generation system supporting both PDF and DOCX output. Explain module interfaces, data structures, processing pipelines, and integration patterns. Include code examples showing how these modules work together to transform raw employee data into formatted payslips, covering error handling, validation, and performance considerations.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/lib/store.ts,src/renderer/src/lib/importSheet.ts,src/renderer/src/lib/payslipHtml.ts,src/renderer/src/lib/payslipDocx.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "order": 3,
       "kk_dependent_files": [
         "src/renderer/src/lib/store.ts",
@@ -357,8 +359,8 @@
       "prompt": "Create comprehensive data model documentation for the Mabtech Payslip Generator's TypeScript interfaces and database schema. Detail the SalaryRow interface representing individual employee records, MonthSheet structure organizing employees by payroll period, Settings configuration for company information, and Db schema for complete application data. Document field definitions, data types, validation rules, and relationships between entities. Include examples of data structures, serialization formats, and migration patterns. Explain how data flows through the application lifecycle from import to persistence, covering data validation, transformation, and integrity constraints.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/types.ts,src/main/index.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "order": 4,
       "kk_dependent_files": [
         "src/renderer/src/types.ts",
@@ -373,8 +375,8 @@
       "prompt": "Create comprehensive documentation for all export capabilities. Detail individual payslip export to PDF and DOCX formats, explaining the quality settings and customization options available. Document bulk export functionality for exporting multiple payslips simultaneously, including performance considerations and best practices. Explain the differences between PDF and DOCX output formats and when to use each. Cover export location selection, file naming conventions, and batch processing options.",
       "progress_status": "completed",
       "dependent_files": "src/main/index.ts,src/renderer/src/lib/payslipDocx.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "c9802a01-bf80-48f5-b130-d7ba7c4aa300",
       "layer_level": 1,
       "order": 4,
@@ -391,8 +393,8 @@
       "prompt": "Create detailed documentation for the React UI components of the Mabtech Payslip Generator. Document the SheetTable component for employee data grid with inline editing capabilities, the Preview component for real-time payslip display using iframe integration, and the SettingsModal component for company configuration. Include component props, events, state management, styling options, and integration patterns. Provide usage examples, customization guidelines, and accessibility considerations. Explain component composition patterns, event handling, and how components communicate with the underlying data store and business logic modules.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/components/SheetTable.tsx,src/renderer/src/components/Preview.tsx,src/renderer/src/components/SettingsModal.tsx",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "order": 5,
       "kk_dependent_files": [
         "src/renderer/src/components/SheetTable.tsx",
@@ -408,8 +410,8 @@
       "prompt": "Develop detailed content for data management features including backup and restore functionality. Explain the local JSON storage system and how data is persisted between sessions. Document the backup creation process, backup file formats, and restoration procedures. Cover data migration between different application versions and handling of corrupted data files. Include best practices for regular backups and data security considerations. Explain the database schema structure and how different data types are stored and managed.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/lib/store.ts,src/main/index.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "c9802a01-bf80-48f5-b130-d7ba7c4aa300",
       "layer_level": 1,
       "order": 5,
@@ -426,8 +428,8 @@
       "prompt": "Create comprehensive API documentation for the Mabtech Payslip Generator's inter-process communication interfaces and utility functions. Document IPC methods for database operations, file system access, dialog management, and window control. Include method signatures, parameters, return values, and error handling patterns. Provide examples of calling main process functions from the renderer process, handling asynchronous operations, and managing security contexts. Document utility functions for calculations, formatting, and data validation. Include protocol-specific details for message passing, event handling, and state synchronization between Electron processes.",
       "progress_status": "completed",
       "dependent_files": "src/main/index.ts,src/preload/index.ts,src/renderer/src/lib/store.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "order": 6,
       "kk_dependent_files": [
         "src/main/index.ts",
@@ -443,8 +445,8 @@
       "prompt": "Create comprehensive documentation for application settings and customization options. Explain the company information setup including logo upload, company details, and contact information. Document template customization options such as footer text, color schemes, and layout preferences. Cover advanced settings like default export formats, file naming patterns, and regional settings. Include examples of common customization scenarios and how changes affect the final payslip output.",
       "progress_status": "completed",
       "dependent_files": "src/renderer/src/components/SettingsModal.tsx,src/renderer/src/types.ts",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "parent_id": "c9802a01-bf80-48f5-b130-d7ba7c4aa300",
       "layer_level": 1,
       "order": 6,
@@ -461,8 +463,8 @@
       "prompt": "Create comprehensive development guide content for contributing to the Mabtech Payslip Generator project. Document development environment setup including Node.js/bun installation, dependency management, and project initialization. Explain the build system using Vite and Electron, TypeScript configuration for both Node.js and web environments, and development workflow including hot reloading and debugging. Cover code organization principles, naming conventions, and contribution guidelines. Include instructions for building production installers, testing procedures, and deployment strategies. Address common development issues, performance optimization techniques, and best practices for extending the application.",
       "progress_status": "completed",
       "dependent_files": "package.json,electron.vite.config.ts,tsconfig.json,README.md",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z",
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z",
       "order": 7,
       "kk_dependent_files": [
         "package.json",
@@ -482,8 +484,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "427c2bc8-ef68-4faf-8555-623247506140",
@@ -494,8 +496,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "4b3723e9-057b-4bfc-8e2f-b618dbdcd830",
@@ -506,8 +508,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "66c56cb4-3086-4deb-9a52-6a6776d8d227",
@@ -518,8 +520,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "b336a578-07d3-4721-8a53-f318d6ebbdd1",
@@ -530,8 +532,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "80776eaf-e9bc-41b7-bb81-fbf33165834b",
@@ -542,8 +544,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "8accccac-6de3-4443-a7a4-71e41436aa7c",
@@ -554,8 +556,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "b7c745d9-dab9-4f74-875f-1e74ce57e49a",
@@ -566,8 +568,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "bbcd3550-a749-42b9-a9e5-390f4d69d812",
@@ -578,8 +580,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "c9802a01-bf80-48f5-b130-d7ba7c4aa300",
@@ -590,8 +592,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "0fb4f87e-f17f-4bf3-84d1-ebc45a1feea0",
@@ -602,8 +604,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "1ef6eb8f-f8be-4d19-93f1-4203648354f5",
@@ -614,8 +616,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "52cb77a0-50aa-4924-87c4-1197aaa6e6be",
@@ -626,8 +628,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "72fe563e-787e-48b0-be07-68d3922261e0",
@@ -638,8 +640,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "cddff9d8-88f4-4c91-b7d0-6189b699282d",
@@ -650,8 +652,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "3498e6fe-711b-475a-b9d1-eca7b11662a3",
@@ -662,8 +664,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "3dc02e01-4baf-4ec7-927a-3d7b1157ed16",
@@ -674,8 +676,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "3f493d82-80f1-4194-b1c2-61b311cd5456",
@@ -686,8 +688,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "d5368323-b426-44d8-bc55-2a8943e9dc43",
@@ -698,8 +700,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "9ebb8ce1-1d1c-4eec-bfbb-f6d48082009b",
@@ -710,8 +712,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "dabf0e75-48ac-4ba8-a979-3afcd51a26e3",
@@ -722,8 +724,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "357ea5ba-d060-41de-8aca-8261af2985aa",
@@ -734,8 +736,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "56fdddee-2762-443f-93f7-7e34599f532d",
@@ -746,8 +748,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "48529a7f-1333-48b8-a712-c2c646eebf3c",
@@ -758,8 +760,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "7e76bcb7-6bd0-4788-a356-5c23dd3bed55",
@@ -770,8 +772,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": "68b187ec-5cd3-45ec-ad16-8f4d1ef4c4d2",
@@ -782,8 +784,8 @@
       "progress_status": "completed",
       "repo_id": "abe96a94-434b-4f9e-a145-9487b669e787",
       "reference_count": 0,
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     }
   ],
   "knowledge_relations": [
@@ -794,8 +796,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 2,
@@ -804,8 +806,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 3,
@@ -814,8 +816,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 4,
@@ -824,8 +826,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 5,
@@ -834,8 +836,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 6,
@@ -844,8 +846,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 7,
@@ -854,8 +856,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 8,
@@ -864,8 +866,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 9,
@@ -874,8 +876,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 10,
@@ -884,8 +886,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 11,
@@ -894,8 +896,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 12,
@@ -904,8 +906,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 13,
@@ -914,8 +916,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 14,
@@ -924,8 +926,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 15,
@@ -934,8 +936,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 16,
@@ -944,8 +946,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 17,
@@ -954,8 +956,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     },
     {
       "id": 18,
@@ -964,8 +966,8 @@
       "source_type": "WIKI_ITEM",
       "target_type": "WIKI_ITEM",
       "relationship_type": "PARENT_CHILD",
-      "gmt_create": "2026-11-23T13:08:51Z",
-      "gmt_modified": "2026-11-23T13:08:51Z"
+      "gmt_create": "2026-11-25T04:49:21Z",
+      "gmt_modified": "2026-11-25T04:49:21Z"
     }
   ]
 }

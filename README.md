@@ -55,6 +55,7 @@ The importer auto-matches these headers (order, case and spacing do not matter):
 | TOTAL WORKING DAYS, NO OF DAYS | Total Working Days — the month's length, per employee; falls back to the month's Working days setting |
 | WORKING DAYS | The employee's own days for the month, printed beside Total Working Days on the payslip |
 | BANK ADVANCE, CASH ADVANCE | Deduction |
+| BANK SALARY | Deduction — salary already paid or collected through the bank |
 | ESI DEDUCTION, PF DEDUCTION | Deduction |
 
 Ignored on purpose: `GROSS SALARY`, `BALANCE AMOUNT`, `SL NO`, `PUNCHING NO` — the app
@@ -63,10 +64,26 @@ status bar after the import, so a renamed column can never lose money quietly. T
 `NOT ELIGIBLE` in a money cell counts as zero.
 
 ```
-net = monthly salary + OT + commission + Sunday − bank advance − cash advance − ESI − PF
+net = monthly salary + OT + commission + Sunday − bank advance − cash advance − bank salary − ESI − PF
 ```
 
 Advances always reduce pay, even if the sheet stores them as `-2000`.
+
+### Several dated entries for one employee
+
+The **Bank Adv**, **Cash Adv** and **Bank Salary** cells in the grid still take a single total you
+can type, but each also has a small **≡** button. Click it to open a list where you record each
+amount separately with the **date** and the **amount** — add as many as you like, or remove one.
+Saving the list sets the cell's total to the sum of those entries.
+
+The dated entries also print on the payslip: under the **Bank Advance / Cash Advance / Bank Salary**
+total the slip lists each entry on its own line — the date indented on the left and the amount in the
+right corner, so it reads as a child of the total line — as a small stacked breakdown, in PDF and
+Word alike. The deduction itself still sums to the one total, so the maths never changes —
+the dates are just shown beneath it for the record. If you type a number straight into the cell
+again, that goes back to a single total and clears the dated list (and the printed breakdown) for
+that field. The dated lists are entered in the app, not imported from the sheet — an Excel
+`BANK ADVANCE` or `BANK SALARY` column still just fills the total.
 
 ### What the payslip shows
 
@@ -76,24 +93,28 @@ closing on a **Total** row. **Earnings & Deductions** (right) is the month's rea
 salary figure the sheet itself calculated (already days-based where the sheet does that),
 then OT, Commission and Sunday work on top, the **Gross Salary**, and underneath it the
 deductions and their total. **Every row always prints** — all three structure lines, the
-Salary line, OT / Commission / Sunday, and all four deductions (Bank Advance, Cash Advance,
-ESI, PF) — so no component ever disappears from the slip: a positive amount shows as money
+Salary line, OT / Commission / Sunday, and all five deductions (Bank Advance, Cash Advance,
+Bank Salary, ESI, PF) — so no component ever disappears from the slip: a positive amount shows as money
 and a genuine zero shows as `0.00`. ESI and PF are statutory, so a zero there (or a
 `NOT ELIGIBLE` cell) prints the words **Not Eligible** instead of `0.00`:
 
 ```
 Salary Details                    |  Earnings & Deductions
-Basic Salary       11,000.00      |  Salary               22,000.00
-HRA                 4,400.00      |  Overtime Amount       1,000.00
-Other Allowance     6,600.00      |  Commission              200.00
-Total              22,000.00      |  Sunday Work               0.00
-                                  |  Gross Salary         23,200.00
-                                  |  Bank Advance          1,500.00
-                                  |  Cash Advance              0.00
-                                  |  ESI Deduction      Not Eligible
-                                  |  PF Deduction          1,320.00
-                                  |  Total Deductions      2,820.00
+Basic Salary        ₹11,000.00    |  Salary                ₹22,000.00
+HRA                  ₹4,400.00    |  Overtime Amount        ₹1,000.00
+Other Allowance      ₹6,600.00    |  Commission               ₹200.00
+Total               ₹22,000.00    |  Sunday Work                ₹0.00
+                                  |  Gross Salary           ₹23,200.00
+                                  |  Bank Advance            ₹1,500.00
+                                  |  Cash Advance               ₹0.00
+                                  |  Bank Salary                ₹0.00
+                                  |  ESI Deduction        Not Eligible
+                                  |  PF Deduction            ₹1,320.00
+                                  |  Total Deductions        ₹2,820.00
 ```
+
+Every money figure carries the ₹ symbol, and the two amount columns are headed simply **Amount** —
+the symbol makes the old "(INR)" label redundant, so it is gone.
 
 The structure is never added to the pay on top of the salary figure — the note under the
 table says so on the slip itself. Employees whose Basic + HRA + Other Allowance does not
@@ -152,10 +173,9 @@ on the payslip. If deductions exceed earnings the net goes red, is labelled *Net
 Recoverable*, and a banner lists the affected employees above the table. PDF and Word
 come from the same calculation (`lib/payslipCalc.ts`), so the two can not disagree.
 
-When an employee has nothing deducted — no advance, no ESI, no PF — the ledger simply ends
-at the Gross Salary row: no deduction lines and no Total Deductions row. Type any deduction
-in and they come back. The Net line is always printed, and with nothing deducted it simply
-equals the gross.
+Every deduction row prints even when there is nothing to deduct, so the template stays fixed and no
+component can vanish: a zero advance shows as `0.00`, and a zero (or NOT ELIGIBLE) ESI/PF shows as
+*Not Eligible*. The Net line is always printed.
 
 The PDF is styled as a print ledger rather than a web page: the letterhead is the company
 logo — the logo image already carries the name, so the name text prints only when no logo

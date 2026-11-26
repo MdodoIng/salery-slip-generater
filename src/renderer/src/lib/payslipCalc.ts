@@ -36,11 +36,23 @@ export function amountInWords(amount: number): string {
 export const inr = (n: number): string =>
   (Number.isFinite(n) ? n : 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
+/** An amount with the ₹ symbol in front — how every money figure reads on the slip. */
+export const money = (n: number): string => '₹' + inr(n)
+
+// The dated advance entries are stored as ISO 'YYYY-MM-DD'; show them the way the slip reads,
+// day first. Anything that is not that shape is passed through untouched.
+const fmtDate = (iso: string): string => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : iso
+}
+
 export type PayslipLine = {
   label: string
   amount: number
   /** Shown verbatim instead of the amount — "Not Eligible" for a deduction the sheet marked so. */
   text?: string
+  /** A small breakdown printed as a stacked list under the line — one dated entry (date + amount). */
+  sub?: { label: string; amount: number }[]
 }
 
 const EARNING_LABELS: Partial<Record<MoneyField, string>> = {
@@ -52,6 +64,7 @@ const EARNING_LABELS: Partial<Record<MoneyField, string>> = {
 const DEDUCTION_LABELS: Partial<Record<MoneyField, string>> = {
   bankAdvance: 'Bank Advance',
   cashAdvance: 'Cash Advance',
+  bankSalary: 'Bank Salary',
   esi: 'ESI Deduction',
   pf: 'PF Deduction'
 }
@@ -107,11 +120,15 @@ export function computePayslip(row: SalaryRow, workingDays: number): PayslipCalc
   for (const f of DEDUCTION_FIELDS) {
     const amount = deductionOf(value(f))
     const statutory = f === 'esi' || f === 'pf'
-    if (isNotEligible(row, f) || (statutory && amount === 0)) {
-      deductionLines.push({ label: DEDUCTION_LABELS[f] as string, amount: 0, text: 'Not Eligible' })
-    } else {
-      deductionLines.push({ label: DEDUCTION_LABELS[f] as string, amount })
-    }
+    const line: PayslipLine =
+      isNotEligible(row, f) || (statutory && amount === 0)
+        ? { label: DEDUCTION_LABELS[f] as string, amount: 0, text: 'Not Eligible' }
+        : { label: DEDUCTION_LABELS[f] as string, amount }
+    // Several dated advances (or bank-salary collections): list them, one per line, under the total
+    // so the slip records when each was taken, while the deduction still reads as one summed figure.
+    const items = f === 'bankAdvance' ? row.bankAdvanceItems : f === 'cashAdvance' ? row.cashAdvanceItems : f === 'bankSalary' ? row.bankSalaryItems : undefined
+    if (items && items.length) line.sub = items.map((e) => ({ label: fmtDate(e.date), amount: Math.abs(e.amount) }))
+    deductionLines.push(line)
   }
 
   const totalEarnings = earningsLines.reduce((s, l) => s + l.amount, 0)

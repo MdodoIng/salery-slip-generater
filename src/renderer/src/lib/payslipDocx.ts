@@ -3,7 +3,7 @@ import {
   AlignmentType, BorderStyle, ImageRun
 } from 'docx'
 import { SalaryRow, Settings, periodLabel } from '../types'
-import { PayslipLine, amountInWords, computePayslip, inr } from './payslipCalc'
+import { PayslipLine, amountInWords, computePayslip, money } from './payslipCalc'
 
 const NAVY = '14395B'
 const GREY = '64748B'
@@ -39,6 +39,25 @@ const amtCell = (t: string, right = true, bold = false): TableCell =>
     children: [line(t, { bold, align: right ? AlignmentType.RIGHT : undefined })]
   })
 
+// A quiet, indented breakdown row — the dated entry (date on the left, amount in the right corner)
+// under an advance or bank-salary total, so the Word slip matches the PDF.
+const subRow = (label: string, amount: number): TableRow =>
+  new TableRow({
+    children: [
+      amtCell('', false), amtCell('', true),
+      new TableCell({
+        borders: { top: noBorder, left: noBorder, right: noBorder, bottom: { style: BorderStyle.SINGLE, size: 4, color: 'DDE3EA' } },
+        margins: { top: 10, bottom: 40, left: 240, right: 40 },
+        children: [line(label, { size: 7.5, color: GREY })]
+      }),
+      new TableCell({
+        borders: { top: noBorder, left: noBorder, right: noBorder, bottom: { style: BorderStyle.SINGLE, size: 4, color: 'DDE3EA' } },
+        margins: { top: 10, bottom: 40, left: 40, right: 80 },
+        children: [line(money(amount), { size: 7.5, color: GREY, align: AlignmentType.RIGHT })]
+      })
+    ]
+  })
+
 export type DocxInput = {
   row: SalaryRow
   period: string
@@ -64,28 +83,29 @@ export async function buildPayslipDocx({ row, period, workingDays, logoPng, sett
     moneyRows.push(new TableRow({
       children: [
         amtCell(s ? s.label : '', false, !!s),
-        amtCell(s ? inr(s.amount) : '-', true, !!s),
+        amtCell(s ? money(s.amount) : '-', true, !!s),
         amtCell(c ? c.label : '', false, !!c),
-        amtCell(c ? inr(c.amount) : '-', true, !!c)
+        amtCell(c ? money(c.amount) : '-', true, !!c)
       ]
     }))
   }
   moneyRows.push(new TableRow({
     children: [
       amtCell(structure.length ? 'Total' : '', false, true),
-      amtCell(structure.length ? inr(slip.salary) : '-', true, true),
+      amtCell(structure.length ? money(slip.salary) : '-', true, true),
       amtCell('Gross Salary', false, true),
-      amtCell(inr(slip.totalEarnings), true, true)
+      amtCell(money(slip.totalEarnings), true, true)
     ]
   }))
   for (const d of slip.deductionLines) {
     moneyRows.push(new TableRow({
-      children: [amtCell('', false), amtCell('-', true), amtCell(d.label, false), amtCell(d.text ?? inr(d.amount), true)]
+      children: [amtCell('', false), amtCell('-', true), amtCell(d.label, false), amtCell(d.text ?? money(d.amount), true)]
     }))
+    for (const s of d.sub ?? []) moneyRows.push(subRow(s.label, s.amount))
   }
   if (slip.deductionLines.length) {
     moneyRows.push(new TableRow({
-      children: [amtCell('', false), amtCell('', true), amtCell('Total Deductions', false, true), amtCell(inr(slip.totalDeductions), true, true)]
+      children: [amtCell('', false), amtCell('', true), amtCell('Total Deductions', false, true), amtCell(money(slip.totalDeductions), true, true)]
     }))
   }
 
@@ -98,8 +118,8 @@ export async function buildPayslipDocx({ row, period, workingDays, logoPng, sett
     labelValue('Total Working Days', String(workingDays)),
     labelValue('Working Days', row.daysWorked != null ? String(row.daysWorked) : '-'),
     labelValue('Leave Balance', String(row.pendingLeave)),
-    ...slip.earningsLines.map((l) => labelValue(`${l.label} (INR)`, inr(l.amount))),
-    ...slip.deductionLines.map((l) => labelValue(`${l.label} (INR)`, l.text ?? inr(l.amount)))
+    ...slip.earningsLines.map((l) => labelValue(l.label, money(l.amount))),
+    ...slip.deductionLines.map((l) => labelValue(l.label, l.text ?? money(l.amount)))
   ]
 
   const doc = new Document({
@@ -126,15 +146,15 @@ export async function buildPayslipDocx({ row, period, workingDays, logoPng, sett
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
-              new TableRow({ tableHeader: true, children: [headCell('Salary Details'), headCell('Amount (INR)', true),
-                headCell('Earnings & Deductions'), headCell('Amount (INR)', true)] }),
+              new TableRow({ tableHeader: true, children: [headCell('Salary Details'), headCell('Amount', true),
+                headCell('Earnings & Deductions'), headCell('Amount', true)] }),
               ...moneyRows
             ]
           }),
           ...(structure.length
             ? [line('The figures under Salary Details are the components of the salary, not additional pay.', { size: 8.5, color: GREY, space: 60 })]
             : [line('', { space: 60 })]),
-          line(`${negative ? 'Net Salary Recoverable' : 'Net Salary Payable'}: INR ${inr(net)}`, { bold: true, size: 12, color: NAVY, space: 2 }),
+          line(`${negative ? 'Net Salary Recoverable' : 'Net Salary Payable'}: ${money(net)}`, { bold: true, size: 12, color: NAVY, space: 2 }),
           line(`(${amountInWords(net)})`, { size: 10, color: GREY, space: settings.bankDetails ? 60 : 260 }),
           ...(settings.bankDetails
             ? [line(settings.bankDetails, { size: 9, color: GREY, space: 200 }), line('', { space: 120 })]
@@ -151,7 +171,9 @@ export async function buildPayslipDocx({ row, period, workingDays, logoPng, sett
                 ]
               })
             ]
-          })
+          }),
+          line('', { space: 160 }),
+          line(settings.payslipFooter, { size: 8, color: GREY, align: AlignmentType.CENTER })
         ]
       }
     ]

@@ -112,3 +112,25 @@ td.actions button.danger { color: var(--maroon); border-color: #f0d9d8; padding:
 }
 .hint { font-size: 12px; color: var(--muted); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+/* Multi-entry advances: a compact number box plus a list button inside the grid cell. */
+table.grid .adv-cell { display: flex; align-items: center; gap: 3px; }
+table.grid .adv-cell input { flex: 1; min-width: 0; }
+.adv-edit {
+  flex: none; padding: 3px 6px; font-size: 12px; line-height: 1;
+  border: 1px solid var(--line); border-radius: 5px; background: #fff; color: var(--muted);
+}
+.adv-edit:hover { border-color: var(--navy); color: var(--navy); }
+.adv-edit.on { background: var(--navy); border-color: var(--navy); color: #fff; font-weight: 600; }
+
+/* The advance editor modal: a list of dated { date, amount } rows. */
+.adv-rows { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 14px 0 4px; }
+.adv-head, .adv-row { display: grid; grid-template-columns: 1fr 1fr 34px; align-items: center; gap: 8px; padding: 7px 10px; }
+.adv-head { background: #f8fafc; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.adv-row { border-top: 1px solid #f1f4f8; }
+.adv-row input { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; width: 100%; }
+.adv-row input[type='number'] { text-align: right; }
+.adv-row button { padding: 2px 9px; font-size: 15px; color: var(--maroon); border-color: #f0d9d8; }
+.adv-empty { padding: 14px; text-align: center; color: var(--muted); font-size: 13px; }
+.adv-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+.adv-total { font-weight: 700; color: var(--navy); }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Db, SalaryRow, MonthSheet, MONEY_FIELDS, breakupMismatch, breakupPartial, emptyRow, netOf, periodLabel } from './types'
+import { Db, SalaryRow, MonthSheet, MONEY_FIELDS, AdvanceField, advanceItemsKey, advanceItemsTotal, breakupMismatch, breakupPartial, emptyRow, netOf, periodLabel } from './types'
 import { loadDb, saveDb, findSheet, upsertSheet, defaultPeriod } from './lib/store'
 import { payslipHtml, payslipFileName } from './lib/payslipHtml'
 import { buildPayslipDocx } from './lib/payslipDocx'
@@ -7,6 +7,7 @@ import { parseSalaryWorkbook, rowsToCsv } from './lib/importSheet'
 import { bytesToBase64, dataUrlToBytes } from './lib/binary'
 import SheetTable from './components/SheetTable'
 import SettingsModal from './components/SettingsModal'
+import AdvanceEditor from './components/AdvanceEditor'
 import Preview from './components/Preview'
 import './app.css'
 
@@ -17,6 +18,7 @@ export default function App(): JSX.Element {
   const [logo, setLogo] = useState('')
   const [status, setStatus] = useState('')
   const [showSettings, setShowSettings] = useState(false)
+  const [advEdit, setAdvEdit] = useState<{ index: number; field: AdvanceField } | null>(null)
   const [busy, setBusy] = useState(false)
   const dbRef = useRef<Db | null>(null)
   const saveTimer = useRef<number>()
@@ -300,6 +302,7 @@ export default function App(): JSX.Element {
             onDelete={deleteRow}
             onPdf={downloadPdf}
             onDocx={downloadDocx}
+            onEditAdvances={(i, field) => setAdvEdit({ index: i, field })}
           />
           <div className="status">{status}</div>
         </section>
@@ -325,6 +328,25 @@ export default function App(): JSX.Element {
           onOpenDataFolder={() => window.api.openDataFolder()}
         />
       )}
+
+      {advEdit && (() => {
+        const row = sheet.rows[advEdit.index]
+        if (!row) return null
+        const itemsKey = advanceItemsKey(advEdit.field)
+        // Seed the editor with the existing list, or with the one total already typed as a single entry.
+        const seed = row[itemsKey] ?? (row[advEdit.field] ? [{ date: '', amount: row[advEdit.field] }] : [])
+        return (
+          <AdvanceEditor
+            title={`${advEdit.field === 'bankAdvance' ? 'Bank Advance' : advEdit.field === 'cashAdvance' ? 'Cash Advance' : 'Bank Salary'} — ${row.name || row.empId || 'Employee'}`}
+            items={seed}
+            onCancel={() => setAdvEdit(null)}
+            onSave={(items) => {
+              updateRow(advEdit.index, { [itemsKey]: items, [advEdit.field]: advanceItemsTotal(items) } as Partial<SalaryRow>)
+              setAdvEdit(null)
+            }}
+          />
+        )
+      })()}
     </div>
   )
 }

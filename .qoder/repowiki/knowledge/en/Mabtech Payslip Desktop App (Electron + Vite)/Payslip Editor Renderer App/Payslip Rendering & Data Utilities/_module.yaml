@@ -5,9 +5,7 @@ scope:
     - src/renderer/src/lib/
 source_files: []
 depends_on: []
-related_to:
-    - path: renderer_app/ui_components
-      reason: UI components consume payslip logic utilities for loading/saving salary data, importing Excel sheets, and rendering HTML/DOCX.
+related_to: []
 kk_module_id: 9526bc17-ff73-650c-9469-f57fc5b773f6
 kk_ordinal: 1
 kk_cards:

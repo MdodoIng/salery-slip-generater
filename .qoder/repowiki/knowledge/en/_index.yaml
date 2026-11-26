@@ -1,9 +1,9 @@
 # 知识卡导出索引文件
 schema_version: 1
 locale: en
-commit: 3fc0e1c023bb78e037153a9b81504143840b64bb
+commit: 123d4e0100346d6ec6ba38378337bfecf27a8541
 branch: main
-exported_at: "2026-11-23T13:10:20Z"
+exported_at: "2026-11-25T04:50:00Z"
 modules:
     main_process:
         dir_name: Electron Main Process & IPC Bridge
@@ -15,7 +15,7 @@ modules:
         depends_on: []
         related_to:
             - path: preload_script
-              reason: Preload exposes IPC handlers (db/payslips, file/save, pdf/export) that main_process registers via electron.ipcMain.handle.
+              reason: Preload script's IPC handlers are implemented by the main process; they form the client/server halves of Electron's contextBridge bridge.
     preload_script:
         dir_name: Electron Preload Sandbox Bridge
         title: Electron Preload Sandbox Bridge
@@ -25,8 +25,10 @@ modules:
         children: []
         depends_on: []
         related_to:
-            - path: renderer_app
-              reason: Renderer entry imports and mounts the app against the typed API surface exposed by preload's contextBridge (db/file/payslip operations).
+            - path: renderer_app/payslip_logic
+              reason: Payslip logic utilities call preload API functions to load/save salary sheets and trigger PDF/DOCX export, which the preload bridges to the main process.
+            - path: renderer_app/ui_components
+              reason: React UI components invoke preload-exposed APIs (e.g. db operations, file I/O, payslip rendering) through window.api to persist and export data.
     renderer_app:
         dir_name: Payslip Editor Renderer App
         title: Payslip Editor Renderer App
@@ -46,9 +48,7 @@ modules:
         source_files: []
         children: []
         depends_on: []
-        related_to:
-            - path: renderer_app/ui_components
-              reason: UI components consume payslip logic utilities for loading/saving salary data, importing Excel sheets, and rendering HTML/DOCX.
+        related_to: []
     renderer_app/ui_components:
         dir_name: Payslip Editor UI Components
         title: Payslip Editor UI Components

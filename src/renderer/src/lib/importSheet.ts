@@ -1,8 +1,9 @@
 import * as XLSX from 'xlsx'
 import { DEDUCTION_FIELDS, MONEY_FIELDS, MoneyField, SalaryRow, baseSalaryOf, emptyRow } from '../types'
 
-/** The row fields an import can fill — every SalaryRow field except the NOT ELIGIBLE flags. */
-type ImportField = Exclude<keyof SalaryRow, 'notEligible'>
+/** The row fields an import can fill — every SalaryRow field except the NOT ELIGIBLE flags and the
+ *  app-only dated advance lists (those are entered in the grid, never read from the sheet). */
+type ImportField = Exclude<keyof SalaryRow, 'notEligible' | 'bankAdvanceItems' | 'cashAdvanceItems' | 'bankSalaryItems'>
 
 const FIELD_ALIASES: Record<ImportField, string[]> = {
   empId: ['empid', 'employeeid', 'empcode', 'employeecode', 'code', 'id', 'empno', 'employeeno'],
@@ -22,6 +23,7 @@ const FIELD_ALIASES: Record<ImportField, string[]> = {
   daysWorked: ['workingdays', 'workingday'],
   bankAdvance: ['bankadvance', 'bank', 'advance', 'bankdeduction'],
   cashAdvance: ['cashadvance', 'cash', 'cashdeduction', 'advancecash'],
+  bankSalary: ['banksalary', 'salarybank', 'bankpay', 'banksalery', 'salarypaidbank'],
   esi: ['esi', 'esideduction', 'esicontribution', 'employeeesi'],
   pf: ['pf', 'pfdeduction', 'pfcontribution', 'providentfund', 'employeepf']
 }
@@ -238,10 +240,10 @@ export function parseSalaryWorkbook(base64: string): ParsedSheet {
   return { rows, skipped, unmapped, duplicates, converted: [...converted], unconvertedPercent: [...unconvertedPercent], errorCells }
 }
 
-export const CSV_HEADERS = ['EMP ID', 'NAME', 'DESIGNATION', 'DEPARTMENT', 'SALARY', 'BASIC SALARY', 'HRA', 'OTHER ALLOWANCE', 'OT', 'COMMISSION', 'SUNDAY', 'PENDING LEAVE', 'TOTAL WORKING DAYS', 'WORKING DAYS', 'BANK ADVANCE', 'CASH ADVANCE', 'ESI DEDUCTION', 'PF DEDUCTION']
+export const CSV_HEADERS = ['EMP ID', 'NAME', 'DESIGNATION', 'DEPARTMENT', 'SALARY', 'BASIC SALARY', 'HRA', 'OTHER ALLOWANCE', 'OT', 'COMMISSION', 'SUNDAY', 'PENDING LEAVE', 'TOTAL WORKING DAYS', 'WORKING DAYS', 'BANK ADVANCE', 'CASH ADVANCE', 'BANK SALARY', 'ESI DEDUCTION', 'PF DEDUCTION']
 
 // Every payslip column, in sheet order — the NOT ELIGIBLE flags are presentation, never exported.
-const CSV_FIELDS = ['empId', 'name', 'designation', 'department', 'salary', 'basicSalary', 'hra', 'otherAllowance', 'ot', 'commission', 'sundayPay', 'pendingLeave', 'workingDays', 'daysWorked', 'bankAdvance', 'cashAdvance', 'esi', 'pf'] as const
+const CSV_FIELDS = ['empId', 'name', 'designation', 'department', 'salary', 'basicSalary', 'hra', 'otherAllowance', 'ot', 'commission', 'sundayPay', 'pendingLeave', 'workingDays', 'daysWorked', 'bankAdvance', 'cashAdvance', 'bankSalary', 'esi', 'pf'] as const
 
 // An absent cell (the per-row working days when the sheet had no such column) exports as blank.
 const csvCell = (v: string | number | undefined): string => {

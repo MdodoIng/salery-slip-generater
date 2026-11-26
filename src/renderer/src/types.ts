@@ -1,3 +1,21 @@
+/** One dated advance entry: when it was taken and how much. The amount is stored positive; the
+ *  list is the app's record of multiple advances, while the SalaryRow total stays the printed sum. */
+export type AdvanceEntry = { date: string; amount: number }
+
+export type AdvanceField = 'bankAdvance' | 'cashAdvance' | 'bankSalary'
+
+/** The SalaryRow key holding the dated entries behind a dated-total field (advance or bank salary). */
+export const advanceItemsKey = (f: AdvanceField): 'bankAdvanceItems' | 'cashAdvanceItems' | 'bankSalaryItems' =>
+  f === 'bankAdvance' ? 'bankAdvanceItems' : f === 'cashAdvance' ? 'cashAdvanceItems' : 'bankSalaryItems'
+
+/** Money fields that carry an optional dated breakdown behind their total. */
+export const isDatedField = (f: MoneyField): f is AdvanceField =>
+  f === 'bankAdvance' || f === 'cashAdvance' || f === 'bankSalary'
+
+/** The sum of a set of dated advance entries — what the total field is set to when they are used. */
+export const advanceItemsTotal = (items?: AdvanceEntry[]): number =>
+  (items ?? []).reduce((s, e) => s + (Number.isFinite(e.amount) ? Math.abs(e.amount) : 0), 0)
+
 export type SalaryRow = {
   empId: string
   name: string
@@ -18,6 +36,12 @@ export type SalaryRow = {
   daysWorked?: number
   bankAdvance: number
   cashAdvance: number
+  bankSalary: number
+  /** Optional dated breakdown behind the advance / bank-salary totals above. The number stays the
+   *  printed total; these entries record when each separate amount was taken or collected. */
+  bankAdvanceItems?: AdvanceEntry[]
+  cashAdvanceItems?: AdvanceEntry[]
+  bankSalaryItems?: AdvanceEntry[]
   esi: number
   pf: number
   /** Columns the sheet itself marks NOT ELIGIBLE (PF, ESI …): stored as zero but shown as the
@@ -67,6 +91,7 @@ export const emptyRow = (): SalaryRow => ({
   pendingLeave: 0,
   bankAdvance: 0,
   cashAdvance: 0,
+  bankSalary: 0,
   esi: 0,
   pf: 0
 })
@@ -82,6 +107,7 @@ export type MoneyField =
   | 'pendingLeave'
   | 'bankAdvance'
   | 'cashAdvance'
+  | 'bankSalary'
   | 'esi'
   | 'pf'
 
@@ -91,7 +117,7 @@ export type MoneyField =
 export const EARNING_FIELDS: MoneyField[] = ['salary', 'ot', 'commission', 'sundayPay']
 
 /** Components that REDUCE pay, always as a positive amount. */
-export const DEDUCTION_FIELDS: MoneyField[] = ['bankAdvance', 'cashAdvance', 'esi', 'pf']
+export const DEDUCTION_FIELDS: MoneyField[] = ['bankAdvance', 'cashAdvance', 'bankSalary', 'esi', 'pf']
 
 /** The non-additive break-up of `salary`, shown on the payslip's Salary Details side. */
 export const BREAKUP_FIELDS: MoneyField[] = ['basicSalary', 'hra', 'otherAllowance']
