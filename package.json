@@ -1,6 +1,6 @@
 {
   "name": "mabtech-payslip",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Mabtech Employee Payslip Generator - offline desktop app",
   "main": "./out/main/index.js",
   "author": "Mabtech Equipment Pvt. Ltd.",
