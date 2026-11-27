@@ -1,1 +1,1 @@
-Electron renderer entry that mounts a React payslip editor, wiring the sheet table, settings modal, and HTML preview around a single persisted Db state.
+Electron renderer that mounts a React payslip editor, wiring the sheet table, dated advance editor, settings modal, and HTML preview around a single persisted Db state.

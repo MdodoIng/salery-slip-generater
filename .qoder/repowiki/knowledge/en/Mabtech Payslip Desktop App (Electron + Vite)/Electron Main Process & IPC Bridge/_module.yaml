@@ -7,7 +7,9 @@ source_files: []
 depends_on: []
 related_to:
     - path: preload_script
-      reason: Preload script's IPC handlers are implemented by the main process; they form the client/server halves of Electron's contextBridge bridge.
+      reason: Preload invokes ipcRenderer channels db:read, db:write, file:*, payslip:* that are served by ipcMain.handle in main/index.ts.
+    - path: renderer_app
+      reason: Renderer's store.ts calls window.api.readData/writeData which preload bridges to ipcMain handlers db:read/db:write in main/index.ts.
 kk_module_id: 1742c784-60d8-9565-0c3b-0079184b65b5
 kk_cards:
     architecture_design:

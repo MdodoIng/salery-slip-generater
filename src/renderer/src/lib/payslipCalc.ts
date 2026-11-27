@@ -115,10 +115,12 @@ export function computePayslip(row: SalaryRow, workingDays: number): PayslipCalc
   // Every deduction column prints on the slip even when it is zero — HR wants a fixed template, so
   // a component never silently disappears. ESI and PF are statutory: a zero (or a NOT ELIGIBLE
   // cell) means the employee is not enrolled, so the slip prints the words instead of ₹0.00. The
-  // two advance columns keep a plain ₹0.00 when there is no advance.
+  // two advance columns keep a plain ₹0.00 when there is no advance. Bank Salary is the one
+  // exception: when nothing was paid or collected through the bank the row is left off the slip.
   const deductionLines: PayslipLine[] = []
   for (const f of DEDUCTION_FIELDS) {
     const amount = deductionOf(value(f))
+    if (f === 'bankSalary' && amount === 0) continue
     const statutory = f === 'esi' || f === 'pf'
     const line: PayslipLine =
       isNotEligible(row, f) || (statutory && amount === 0)

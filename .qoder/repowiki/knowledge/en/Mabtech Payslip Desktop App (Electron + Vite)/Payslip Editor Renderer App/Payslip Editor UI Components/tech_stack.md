@@ -1,1 +1,1 @@
-React functional components with TypeScript; CSS class names (e.g. `modal-backdrop`, `table-wrap`, `preview-box`) imply a sibling stylesheet rather than inline styles or a CSS-in-JS library.
+React functional components with TypeScript; CSS class names (`modal-backdrop`, `table-wrap`, `preview-box`, `adv-cell`, `adv-row`, etc.) imply sibling stylesheets rather than inline styles or a CSS-in-JS library.

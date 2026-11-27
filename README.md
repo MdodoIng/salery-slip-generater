@@ -93,10 +93,12 @@ closing on a **Total** row. **Earnings & Deductions** (right) is the month's rea
 salary figure the sheet itself calculated (already days-based where the sheet does that),
 then OT, Commission and Sunday work on top, the **Gross Salary**, and underneath it the
 deductions and their total. **Every row always prints** — all three structure lines, the
-Salary line, OT / Commission / Sunday, and all five deductions (Bank Advance, Cash Advance,
-Bank Salary, ESI, PF) — so no component ever disappears from the slip: a positive amount shows as money
+Salary line, OT / Commission / Sunday, and the deductions (Bank Advance, Cash Advance,
+ESI, PF) — so no component ever disappears from the slip: a positive amount shows as money
 and a genuine zero shows as `0.00`. ESI and PF are statutory, so a zero there (or a
-`NOT ELIGIBLE` cell) prints the words **Not Eligible** instead of `0.00`:
+`NOT ELIGIBLE` cell) prints the words **Not Eligible** instead of `0.00`. **Bank Salary is the
+one exception: it prints only when it is not zero** — with nothing paid or collected through the
+bank the row is left off the slip entirely:
 
 ```
 Salary Details                    |  Earnings & Deductions
@@ -107,7 +109,6 @@ Total               ₹22,000.00    |  Sunday Work                ₹0.00
                                   |  Gross Salary           ₹23,200.00
                                   |  Bank Advance            ₹1,500.00
                                   |  Cash Advance               ₹0.00
-                                  |  Bank Salary                ₹0.00
                                   |  ESI Deduction        Not Eligible
                                   |  PF Deduction            ₹1,320.00
                                   |  Total Deductions        ₹2,820.00

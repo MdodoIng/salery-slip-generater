@@ -1,4 +1,4 @@
 - Each component is exported as a default function component whose props are typed via a local `Props` interface (or inline type annotation) and returns `JSX.Element`.
-- Event handlers update local state immutably by spreading the previous object and overwriting the changed key (e.g. `{ ...form, [key]: e.target.value }`).
+- Event handlers update local state immutably by mapping over the previous array and returning a spread copy with only the changed key patched.
 - Column definitions for tabular data are declared as arrays of `{ key, label, width }` objects and rendered via `.map`, separating layout metadata from JSX.
-- Components receive all external behavior through callback props (`onSave`, `onClose`, `onPdf`, `onDocx`, `onOpenDataFolder`) rather than importing IPC or store modules directly.
+- Components receive all external behavior through callback props (`onSave`, `onClose`, `onPdf`, `onDocx`, `onOpenDataFolder`, `onEditAdvances`) rather than importing IPC or store modules directly.

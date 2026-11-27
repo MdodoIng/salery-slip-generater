@@ -91,7 +91,7 @@ kk_cards:
                 - src/renderer/src/lib/store.ts
     frontend_style:
         id: 94d8cc2f-d26d-4f1d-5dbe-a94f9a7aedcb
-        title: CSS-Only Styling with Design Tokens and Utility Classes
+        title: CSS-Only Styling with Design Tokens, Utility Classes, and Inline Advance Editor
         meta:
             category: frontend_style
             scope:

@@ -4,9 +4,10 @@ The renderer UI is styled exclusively through a single global stylesheet (`src/r
 
 ## Key Files
 
-- `src/renderer/src/app.css` — the only stylesheet; defines design tokens, base resets, layout, table grid, preview pane, modal styles, and the `.ne` (Not Eligible) cell variant.
+- `src/renderer/src/app.css` — the only stylesheet; defines design tokens, base resets, layout, table grid, preview pane, modal styles, `.ne` cell variant, advance-editor cell/list styles (`.adv-cell`, `.adv-edit`, `.adv-rows`, `.adv-row`, `.adv-head`, `.adv-foot`, `.adv-total`).
 - `src/renderer/src/App.tsx` — imports `app.css`; composes top-level layout classes (`app`, `topbar`, `toolbar`, `split`, `pane`).
-- `src/renderer/src/components/SheetTable.tsx` — uses class names like `grid`, `num`, `gross`, `negative`, `actions`, `danger`, `no-rows`, `active`, `ne`.
+- `src/renderer/src/components/SheetTable.tsx` — uses class names like `grid`, `num`, `gross`, `negative`, `actions`, `danger`, `no-rows`, `active`, `ne`, plus the new `.adv-cell` / `.adv-edit.on` for bank-advance, cash-advance, and bank-salary columns.
+- `src/renderer/src/components/AdvanceEditor.tsx` — renders a multi-entry dated-advance list inside the shared `.modal-backdrop` / `.modal` overlay, using `.hint`, `.adv-rows`, `.adv-head`, `.adv-row`, `.adv-empty`, `.adv-foot`, `.adv-total`, and `.modal-actions`.
 - `src/renderer/src/components/Preview.tsx` — uses `preview-box`, `preview-frame`; applies inline `style={{ width, height, transform }}` for page scaling.
 - `src/renderer/src/components/SettingsModal.tsx` — uses `modal-backdrop`, `modal`, `field`, `hint`, `modal-actions`, `link`, `primary`.
 
@@ -25,11 +26,11 @@ The renderer UI is styled exclusively through a single global stylesheet (`src/r
 }
 ```
 
-These variables are used consistently across buttons, borders, backgrounds, and text. A small number of neutral literals (`#fff`, `#f8fafc`, `#eef4fa`, `#fdf3f2`, `#b5332b`, `#1d4c76`) appear directly but do not introduce new semantic colors.
+These variables are used consistently across buttons, borders, backgrounds, and text. A small number of neutral literals (`#fff`, `#f8fafc`, `#eef4fa`, `#fdf3f2`, `#b5332b`, `#1d4c76`, `#f0d9d8`, `#e9edf2`) appear directly but do not introduce new semantic colors.
 
 **Global reset + base element styling.** The stylesheet starts with `* { box-sizing: border-box }` and sets `html, body, #root` to full height with `overflow: hidden` (the Electron window manages scrolling). `body` picks up `font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif` at `14px`.
 
-**Button variants as modifier classes.** A base `button` rule is extended via modifier classes: `.primary` (navy background), `.accent` (maroon background), `.link` (underline, no border). This pattern is reused throughout the app.
+**Button variants as modifier classes.** A base `button` rule is extended via modifier classes: `.primary` (navy background), `.accent` (maroon background), `.link` (underline, no border), `.danger` (maroon tint). This pattern is reused throughout the app.
 
 **Layout via Flexbox and CSS Grid.** The main editor is a two-pane split using `display: grid; grid-template-columns: minmax(620px, 1.4fr) minmax(380px, 1fr)` on `.split`, with each pane wrapped in `.pane` (white card with rounded corners). Top bar and toolbar use flexbox.
 
@@ -37,15 +38,20 @@ These variables are used consistently across buttons, borders, backgrounds, and 
 
 **Not-Eligible cell style.** Cells whose sheet value is `NOT ELIGIBLE` receive the `.ne` class, rendering them in `var(--muted)` with `font-style: italic` so they visually stand in for zero until edited.
 
-**Modal overlay pattern.** Modals use a fixed-position backdrop (`.modal-backdrop`) with a centered card (`.modal`), field labels (`.field`), hints (`.hint`), and action buttons (`.modal-actions`).
+**Inline advance-editor cell.** For bank-advance, cash-advance, and bank-salary fields, `SheetTable` renders a compact `.adv-cell` containing an inline number input plus a ≡ `.adv-edit` button. The button toggles an `.on` state (navy background) when the AdvanceEditor modal is open, delegating editing to the parent `App` via the `onEditAdvances` callback.
 
-**Inline styles for dynamic sizing.** Where dimensions depend on runtime values (payslip page scale in `Preview.tsx`, column widths in `SheetTable.tsx`), inline `style=` props are used rather than CSS variables or utility classes.
+**Multi-entry dated-advance modal.** `AdvanceEditor` reuses the shared modal overlay (`.modal-backdrop`, `.modal`) and introduces a self-contained row list: `.adv-rows` as a bordered container, `.adv-head` / `.adv-row` as CSS Grid rows (`1fr 1fr 34px`), `.adv-empty` for the no-data state, and `.adv-foot` / `.adv-total` for the running total formatted with `toLocaleString('en-IN')`.
+
+**Modal overlay pattern.** Modals use a fixed-position backdrop (`position: fixed; inset: 0; z-index: 100; display: grid; place-items: center`) with a centered card (`.modal`), field labels (`.field`), hints (`.hint`), and action buttons (`.modal-actions`).
+
+**Inline styles for dynamic sizing.** Where dimensions depend on runtime values (payslip page scale in `Preview.tsx`, column widths in `SheetTable.tsx`, advance row inputs), inline `style=` props or direct numeric values are used rather than CSS variables or utility classes.
 
 ## Conventions and Constraints
 
 - **Single source of truth for colors:** Colors are referenced through `var(--navy|--maroon|--ink|--muted|--line|--bg)`; new colors should be added to `:root` rather than introduced as ad-hoc hex literals.
 - **No CSS framework dependency:** `package.json` contains no Tailwind, Bootstrap, Material-UI, Chakra, Styled Components, Emotion, or similar packages — only React, Electron, and file-processing libraries (`xlsx`, `papaparse`, `docx`).
 - **No CSS preprocessing:** There is no `tailwind.config.*`, no Sass/SCSS files, no PostCSS config, and no CSS Modules — all styles are plain `.css`.
-- **Component classes are flat, not scoped:** Class names like `grid`, `pane`, `modal`, `field`, `actions` live in the global namespace and are shared across components; there is no BEM prefixing or module scoping convention visible.
+- **Component classes are flat, not scoped:** Class names like `grid`, `pane`, `modal`, `field`, `actions`, `adv-cell`, `adv-row` live in the global namespace and are shared across components; there is no BEM prefixing or module scoping convention visible.
 - **Responsive strategy is desktop-first:** The layout assumes a fixed desktop viewport (`overflow: hidden` on `body`, minimum pane widths of 620px/380px); no media queries exist in `app.css`.
 - **Typography is inherited:** Components rely on `font: inherit` on buttons and inputs so they adopt the body font size/family rather than defining their own type scale.
+- **New component markup must reuse existing token/class families:** New UI surfaces extend the established patterns — button modifiers (`.primary`, `.accent`, `.link`, `.danger`), modal overlay (`.modal-backdrop`, `.modal`, `.modal-actions`), field/hint labels (`.field`, `.hint`), and table grid (`.grid`, `.num`, `.actions`) — rather than introducing bespoke visual rules.

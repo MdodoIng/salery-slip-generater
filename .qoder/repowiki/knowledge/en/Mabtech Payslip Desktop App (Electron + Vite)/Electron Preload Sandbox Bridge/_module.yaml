@@ -5,11 +5,7 @@ scope:
     - src/preload/
 source_files: []
 depends_on: []
-related_to:
-    - path: renderer_app/payslip_logic
-      reason: Payslip logic utilities call preload API functions to load/save salary sheets and trigger PDF/DOCX export, which the preload bridges to the main process.
-    - path: renderer_app/ui_components
-      reason: React UI components invoke preload-exposed APIs (e.g. db operations, file I/O, payslip rendering) through window.api to persist and export data.
+related_to: []
 kk_module_id: 1b1f4aa5-c974-cc9c-3fbe-e13638d05c3d
 kk_ordinal: 1
 kk_cards:

@@ -6,6 +6,7 @@ The repository has no dedicated error-handling framework, custom error class hie
 - **Preload bridge** (`src/preload/index.ts`): purely pass-through — each exported function wraps exactly one `ipcRenderer.invoke(...)` call and exposes it via `contextBridge.exposeInMainWorld('api', api)`. No wrapping, no error transformation, no retry logic.
 - **Renderer** (`src/renderer/src/App.tsx`): catches errors at the import call site using `try/catch`, then surfaces the message through React state `status` via `setStatus(...)`. The `.catch` branch casts the caught value as `Error` and reads `.message`; there is no typed error union or code-based discrimination. Export flows set plain status strings like `'Export cancelled.'`, `'Saved <path>'`, etc.
 - **Store layer** (`src/renderer/src/lib/store.ts`): contains no error handling of its own; it assumes `window.api.readData()` resolves successfully and normalizes missing fields defensively (e.g. `Array.isArray(raw?.sheets) ? raw.sheets : []`).
+- **Advance editor components** (`src/renderer/src/components/AdvanceEditor.tsx`, `src/renderer/src/components/SheetTable.tsx`): no error handling. `AdvanceEditor` mutates local state via `useState` and filters out rows without a date or amount on save; `SheetTable` delegates advance editing to the parent `App` through an `onEditAdvances` callback. Input validation is UI-only (HTML `type="number" min={0}`, numeric coercion), not thrown as errors.
 
 ## Key files
 
@@ -13,6 +14,8 @@ The repository has no dedicated error-handling framework, custom error class hie
 - `src/preload/index.ts` — IPC passthrough surface; no error shaping.
 - `src/renderer/src/App.tsx` — only `try/catch` sites in the renderer; user-facing feedback goes through the `status` state and the `<div className="status">` element.
 - `src/renderer/src/lib/store.ts` — defensive nullish coalescing but no explicit error paths.
+- `src/renderer/src/components/AdvanceEditor.tsx` — dated-advance modal; no error handling.
+- `src/renderer/src/components/SheetTable.tsx` — renders inline number inputs plus a ≡ list button for `bankAdvance`, `cashAdvance`, and `bankSalary`; delegates editing via `onEditAdvances`.
 
 ## Architecture & conventions observed
 
@@ -24,6 +27,7 @@ The repository has no dedicated error-handling framework, custom error class hie
 6. **No middleware or global handlers.** There is no `app.on('uncaughtException')`, no `process.on('unhandledRejection')`, and no IPC-level error wrapper.
 7. **Defensive data normalization instead of validation errors.** Both main and renderer coerce unexpected shapes to defaults (e.g. `parsed.settings ?? null`, `raw?.sheets ?? []`) rather than rejecting them.
 8. **Fixed-template payslip contract.** README.md documents that every structure, earnings, and deduction row prints even when zero, with ESI/PF showing 'Not Eligible' instead of `0.00` — this is a behavioral contract for the renderer's payslip output, not merely a UI preference.
+9. **Advance entries are unvalidated client data.** Dated advances are stored as `{date: string, amount: number}` arrays filtered by `e.date || e.amount` on save; invalid dates or negative amounts are not rejected, only displayed.
 
 ## Constraints / rules
 

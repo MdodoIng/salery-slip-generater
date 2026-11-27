@@ -1,1 +1,1 @@
-Electron desktop app that imports Excel/CSV salary sheets, renders a live payslip editor, and exports per-employee PDFs or Word docs through an IPC bridge backed by local JSON persistence.
+Three-process Electron desktop app orchestrated by electron-vite that imports salary sheets, renders a live payslip editor with dated advance entries, and exports per-employee PDFs/Word docs via an IPC bridge backed by local JSON persistence.

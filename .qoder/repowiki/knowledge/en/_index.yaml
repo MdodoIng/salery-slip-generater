@@ -1,9 +1,9 @@
 # 知识卡导出索引文件
 schema_version: 1
 locale: en
-commit: 123d4e0100346d6ec6ba38378337bfecf27a8541
+commit: 69161e68fafda447a13ada561c94688d45a2439e
 branch: main
-exported_at: "2026-11-25T04:50:00Z"
+exported_at: "2026-11-27T05:46:05Z"
 modules:
     main_process:
         dir_name: Electron Main Process & IPC Bridge
@@ -15,7 +15,9 @@ modules:
         depends_on: []
         related_to:
             - path: preload_script
-              reason: Preload script's IPC handlers are implemented by the main process; they form the client/server halves of Electron's contextBridge bridge.
+              reason: Preload invokes ipcRenderer channels db:read, db:write, file:*, payslip:* that are served by ipcMain.handle in main/index.ts.
+            - path: renderer_app
+              reason: Renderer's store.ts calls window.api.readData/writeData which preload bridges to ipcMain handlers db:read/db:write in main/index.ts.
     preload_script:
         dir_name: Electron Preload Sandbox Bridge
         title: Electron Preload Sandbox Bridge
@@ -24,11 +26,7 @@ modules:
         source_files: []
         children: []
         depends_on: []
-        related_to:
-            - path: renderer_app/payslip_logic
-              reason: Payslip logic utilities call preload API functions to load/save salary sheets and trigger PDF/DOCX export, which the preload bridges to the main process.
-            - path: renderer_app/ui_components
-              reason: React UI components invoke preload-exposed APIs (e.g. db operations, file I/O, payslip rendering) through window.api to persist and export data.
+        related_to: []
     renderer_app:
         dir_name: Payslip Editor Renderer App
         title: Payslip Editor Renderer App
